@@ -54,6 +54,7 @@ npm run build
 | 8 | [발도장](docs/11_FOOTPRINT_ANALYSIS.md), [AI](docs/12_AI_ANALYSIS.md) | 미정 기술의 경계와 분석 규약 |
 | 9 | [보안·운영](docs/13_SECURITY_OPERATIONS.md), [검수](docs/14_ACCEPTANCE_TESTS.md) | 실제 운영 전 충족 조건 |
 | 10 | [개발 작업](docs/15_TASKS.md), [폴더 구조](docs/16_PROJECT_STRUCTURE.md), [에이전트 협업](docs/17_AGENT_WORKFLOW.md) | 구현 순서와 작업 방식 |
+| 11 | [프론트 화면별 내용 구성](docs/18_FRONTEND_SCREEN_CONTENT_PLAN.md) | 정적 화면의 내용·행동·상태와 클라이언트 검토 항목 |
 
 전체 문서를 매 작업마다 다시 읽을 필요는 없습니다. 처음에는 핵심 문서를 읽고 이후에는 해당 작업과 관련된 문서만 읽습니다.
 
