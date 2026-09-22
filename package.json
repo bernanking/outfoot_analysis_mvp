@@ -1,18 +1,28 @@
 {
   "name": "outfoot-analysis-mvp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "start": "tsx src/index.ts",
-    "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@anthropic-ai/sdk": "^0.127.0"
+    "dev": "npm run dev --workspace @outfoot/web",
+    "build": "npm run build --workspace @outfoot/web",
+    "preview": "npm run preview --workspace @outfoot/web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "eslint .",
+    "test": "npm run test --workspaces --if-present",
+    "cf:typegen": "npm run cf:typegen --workspace @outfoot/api"
   },
   "devDependencies": {
-    "@types/node": "^24.0.0",
-    "tsx": "^4.19.0",
-    "typescript": "^5.7.0"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.11.0",
+    "eslint-plugin-vue": "^10.11.0",
+    "globals": "^17.12.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.70.1",
+    "vitest": "^5.0.1"
   }
 }

@@ -1,0 +1,28 @@
+{
+  "name": "@outfoot/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --noEmit",
+    "test": "vitest run --config vitest.config.ts"
+  },
+  "dependencies": {
+    "@outfoot/contracts": "*",
+    "@primeuix/themes": "^3.0.1",
+    "pinia": "^4.0.3",
+    "primevue": "^5.0.1",
+    "vue": "^3.5.43",
+    "vue-router": "^5.3.1"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.57.1",
+    "@vitejs/plugin-vue": "^6.0.9",
+    "vite": "^8.3.0",
+    "vue-tsc": "^3.3.11",
+    "wrangler": "^4.136.1"
+  }
+}
