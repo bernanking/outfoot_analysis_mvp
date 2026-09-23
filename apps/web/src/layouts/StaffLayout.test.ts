@@ -1,0 +1,66 @@
+import { mount, flushPromises } from "@vue/test-utils";
+import { afterEach, describe, expect, it } from "vitest";
+import { createMemoryHistory } from "vue-router";
+
+import { createAppRouter } from "../router";
+import StaffLayout from "./StaffLayout.vue";
+
+const mounted: Array<ReturnType<typeof mount>> = [];
+
+afterEach(() => {
+  mounted.forEach((wrapper) => wrapper.unmount());
+  mounted.length = 0;
+  document.body.innerHTML = "";
+});
+
+async function mountLayout() {
+  const router = createAppRouter(createMemoryHistory());
+  await router.push("/consultations");
+  await router.isReady();
+  const wrapper = mount(StaffLayout, {
+    attachTo: document.body,
+    global: { plugins: [router], stubs: { RouterView: true } },
+  });
+  mounted.push(wrapper);
+  return wrapper;
+}
+
+describe("staff preview layout", () => {
+  it("shows operations links only in the administrator preview", async () => {
+    const wrapper = await mountLayout();
+    expect(wrapper.find('a[href="/admin/users"]').exists()).toBe(false);
+
+    await wrapper.get("#preview-role").setValue("ADMIN");
+    expect(wrapper.find('a[href="/admin/users"]').exists()).toBe(true);
+    expect(wrapper.find('a[href="/admin/records/audit"]').exists()).toBe(true);
+  });
+
+  it("moves focus into the menu and restores it on Escape", async () => {
+    const wrapper = await mountLayout();
+    const toggle = wrapper.get<HTMLButtonElement>(".menu-toggle");
+    await toggle.trigger("click");
+    await flushPromises();
+
+    expect(document.activeElement).toBe(wrapper.get('a[href="/consultations"].nav-link').element);
+    expect(wrapper.get(".staff-content").attributes("inert")).toBeDefined();
+
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    await flushPromises();
+    expect(document.activeElement).toBe(toggle.element);
+    expect(wrapper.get(".staff-content").attributes("inert")).toBeUndefined();
+  });
+
+  it("closes the menu and releases inert when the current route link is clicked", async () => {
+    const wrapper = await mountLayout();
+    await wrapper.get(".menu-toggle").trigger("click");
+    await flushPromises();
+
+    await wrapper.get('a[href="/consultations"].nav-link').trigger("click");
+    await flushPromises();
+
+    expect(wrapper.get(".menu-toggle").attributes("aria-expanded")).toBe("false");
+    expect(wrapper.find(".mobile-scrim").exists()).toBe(false);
+    expect(wrapper.get(".staff-content").attributes("inert")).toBeUndefined();
+    expect(document.activeElement).toBe(wrapper.get("#main-content").element);
+  });
+});
