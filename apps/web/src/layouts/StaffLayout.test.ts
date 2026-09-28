@@ -1,6 +1,7 @@
 import { mount, flushPromises } from "@vue/test-utils";
 import { afterEach, describe, expect, it } from "vitest";
 import { createMemoryHistory } from "vue-router";
+import { createPinia } from "pinia";
 
 import { createAppRouter } from "../router";
 import StaffLayout from "./StaffLayout.vue";
@@ -19,7 +20,7 @@ async function mountLayout() {
   await router.isReady();
   const wrapper = mount(StaffLayout, {
     attachTo: document.body,
-    global: { plugins: [router], stubs: { RouterView: true } },
+    global: { plugins: [createPinia(), router], stubs: { RouterView: true } },
   });
   mounted.push(wrapper);
   return wrapper;
@@ -28,9 +29,11 @@ async function mountLayout() {
 describe("staff preview layout", () => {
   it("shows operations links only in the administrator preview", async () => {
     const wrapper = await mountLayout();
+    expect(wrapper.text()).toContain("시술자 김 · 시술자");
     expect(wrapper.find('a[href="/admin/users"]').exists()).toBe(false);
 
     await wrapper.get("#preview-role").setValue("ADMIN");
+    expect(wrapper.text()).toContain("관리자 박 · 관리자");
     expect(wrapper.find('a[href="/admin/users"]').exists()).toBe(true);
     expect(wrapper.find('a[href="/admin/records/audit"]').exists()).toBe(true);
   });
@@ -62,5 +65,22 @@ describe("staff preview layout", () => {
     expect(wrapper.find(".mobile-scrim").exists()).toBe(false);
     expect(wrapper.get(".staff-content").attributes("inert")).toBeUndefined();
     expect(document.activeElement).toBe(wrapper.get("#main-content").element);
+  });
+
+  it("leaves an administrator page when preview role changes to practitioner", async () => {
+    const pinia = createPinia();
+    const router = createAppRouter(createMemoryHistory());
+    const { usePreviewStore } = await import("../stores/preview");
+    usePreviewStore(pinia).role = "ADMIN";
+    await router.push("/admin/users");
+    await router.isReady();
+    const wrapper = mount(StaffLayout, {
+      attachTo: document.body,
+      global: { plugins: [pinia, router], stubs: { RouterView: true } },
+    });
+    mounted.push(wrapper);
+    await wrapper.get("#preview-role").setValue("PRACTITIONER");
+    await flushPromises();
+    expect(router.currentRoute.value.path).toBe("/403");
   });
 });
