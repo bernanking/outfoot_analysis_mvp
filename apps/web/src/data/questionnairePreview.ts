@@ -70,6 +70,54 @@ export const previewQuestions: Record<string, PreviewQuestion[]> = Object.fromEn
   Object.entries(questionDefinitions).map(([step, questions]) => [step, questions.map((question) => ({ ...question, required: !optionalQuestionIds.has(question.id) }))]),
 );
 
+// 환자 화면용 보조 설명입니다. 문항 코드·내부 조건 설명(note)은 환자에게 보이지 않고 직원 화면·문서에서만 씁니다.
+export const patientHelp: Record<string, string> = {
+  C04: "0은 불편 없음, 10은 가장 심한 상태입니다.",
+  N01: "왼쪽(L)·오른쪽(R)과 발가락 번호(엄지 1 ~ 새끼 5)로 고릅니다.",
+  P02: "위에서 고른 부위 중 가장 불편한 곳 하나를 고릅니다.",
+  P05: "0은 불편 없음, 10은 가장 심한 상태입니다.",
+  P11: "주당 횟수는 알고 있을 때만 적어 주세요.",
+  P12: "알고 있을 때만 적어 주세요. 실제 측정한 값으로 쓰지 않습니다.",
+};
+
+// 관련 답변을 골랐을 때만 나타나는 상세 입력입니다.
+export const detailPrompts: Record<string, { label: string; when: (answer: string | string[] | undefined) => boolean }> = {
+  C07: { label: "다친 시기와 부위", when: (answer) => answer === "예" },
+  C10: { label: "부위와 시기", when: (answer) => answer === "있음" },
+  N06: { label: "다친 시기", when: (answer) => answer === "예" },
+  N08: { label: "최근 처치한 날짜와 방법", when: (answer) => Array.isArray(answer) && answer.some((value) => value !== none) },
+  N10: { label: "관리 기간과 효과", when: (answer) => Array.isArray(answer) && answer.some((value) => value !== none) },
+  P10: { label: "검사 시기와 들은 진단명", when: (answer) => Array.isArray(answer) && answer.some((value) => value !== none && value !== unknown) },
+  P14: { label: "사용 기간과 효과·불편", when: (answer) => answer === "기성 인솔" || answer === "맞춤 인솔" },
+};
+
+// 환자 질문지의 단계입니다. 긴 유형별 질문은 의미 단위로 나누되 문항 ID와 조건은 그대로 둡니다(T04B 제안, O03 문구 확정 전).
+export interface PatientStep { title: string; group: "intro" | "common" | "nail" | "pain" | "photo" | "review"; ids: string[] }
+const idsOf = (group: string) => previewQuestions[group].map((question) => question.id);
+const nailIds = idsOf("발톱 질문");
+const painIds = idsOf("통증·인솔 질문");
+export function patientSteps(nail: boolean, pain: boolean): PatientStep[] {
+  return [
+    { title: "안내와 동의", group: "intro", ids: [] },
+    { title: "상담 내용", group: "common", ids: idsOf("상담 내용") },
+    { title: "안전 확인", group: "common", ids: idsOf("안전 확인") },
+    { title: "생활과 목표", group: "common", ids: idsOf("생활과 목표") },
+    ...(nail ? [
+      { title: "발톱 상태", group: "nail" as const, ids: nailIds.slice(0, 4) },
+      { title: "발톱 통증과 관리", group: "nail" as const, ids: nailIds.slice(4, 10) },
+      { title: "발톱 주변과 신발", group: "nail" as const, ids: nailIds.slice(10) },
+    ] : []),
+    ...(pain ? [
+      { title: "불편 부위와 느낌", group: "pain" as const, ids: painIds.slice(0, 5) },
+      { title: "생활 속 불편", group: "pain" as const, ids: painIds.slice(5, 10) },
+      { title: "신발과 인솔", group: "pain" as const, ids: painIds.slice(10) },
+    ] : []),
+    ...(nail ? [{ title: "사진", group: "photo" as const, ids: [] }] : []),
+    { title: "답변 확인", group: "review", ids: [] },
+  ];
+}
+export const questionById = Object.fromEntries(Object.values(previewQuestions).flat().map((question) => [question.id, question]));
+
 export function toggleExclusiveChoice(current: string[], option: string): string[] {
   if (current.includes(option)) return current.filter((value) => value !== option);
   if (option === none) return [none];

@@ -14,9 +14,9 @@ afterEach(() => {
   document.body.innerHTML = "";
 });
 
-async function mountLayout() {
+async function mountLayout(path = "/consultations") {
   const router = createAppRouter(createMemoryHistory());
-  await router.push("/consultations");
+  await router.push(path);
   await router.isReady();
   const wrapper = mount(StaffLayout, {
     attachTo: document.body,
@@ -27,6 +27,28 @@ async function mountLayout() {
 }
 
 describe("staff preview layout", () => {
+  it.each([
+    ["/consultations/c-103/visit", "/consultations"],
+    ["/consultations/c-101/print", "/consultations"],
+    ["/patients/p-a", "/patients"],
+    ["/consultations/new", "/consultations/new"],
+    ["/patients/new", "/patients/new"],
+  ])("keeps the parent menu active on %s", async (path, activeHref) => {
+    const wrapper = await mountLayout(path);
+    const active = wrapper.findAll(".nav-link.nav-link--active");
+    expect(active).toHaveLength(1);
+    expect(active[0].attributes("href")).toBe(activeHref);
+  });
+
+  it("keeps preview tools collapsed by default and separate from the current user", async () => {
+    const wrapper = await mountLayout();
+    const tools = wrapper.get<HTMLDetailsElement>(".topbar-user details.preview-tools");
+    expect(tools.element.open).toBe(false);
+    expect(tools.get(".preview-tools-label-full").text()).toBe("시안 검토 도구");
+    expect(tools.get(".preview-tools-label-short").attributes("aria-hidden")).toBe("true");
+    expect(wrapper.get(".current-user").isVisible()).toBe(true);
+  });
+
   it("shows operations links only in the administrator preview", async () => {
     const wrapper = await mountLayout();
     expect(wrapper.text()).toContain("시술자 김 · 시술자");

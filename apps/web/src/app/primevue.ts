@@ -15,6 +15,17 @@ export const outfootTheme = definePreset(Aura, {
       800: "#142b42",
       900: "#102338",
       950: "#0a1928"
+    },
+    // 업무 화면 버튼(.primary-button)과 같은 주색·hover를 쓰도록 맞춥니다.
+    colorScheme: {
+      light: {
+        primary: {
+          color: "{primary.700}",
+          contrastColor: "#ffffff",
+          hoverColor: "{primary.600}",
+          activeColor: "{primary.800}"
+        }
+      }
     }
   }
 });
