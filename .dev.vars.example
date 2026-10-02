@@ -1,3 +1,0 @@
-# 초기 개발은 mock AI만 사용합니다. 실제 공급자 키를 여기에 넣지 않습니다.
-APP_ENV=local
-AI_MODE=mock

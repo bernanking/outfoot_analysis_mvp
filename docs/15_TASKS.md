@@ -6,8 +6,9 @@
 | --- | --- | --- | --- |
 | T00 | 최신 결정·문서 정합성 확인, 기술 기준 기록 | 없음 | DONE 문서 v1.1 |
 | T01 | npm workspace, Vue·Workers API·shared 스캐폴드, lint·test·env 예시 | T00 | DONE 2026-09-22 |
-| T02 | D1 SQL, 기관·사용자·환자·상담 기본 스키마·마이그레이션과 합성 seed | T01 | TODO |
-| T03 | 로그인·세션·역할·기관 권한, 관리자 계정관리 | T02 | TODO |
+| T01A | 기술 전환 기반 정리(D25·D26): Cloudflare 정적 설정, Supabase 로컬 설정·환경변수 예시, Edge Function 골격, 런타임 중립 서버 코어, 웹 서비스 경계, Workers·D1·R2 의존성 정리, 이전 경계 문서 | T01 | DONE 2026-10-02(정적·mock·Deno 검증. 로컬 Supabase 기동은 Docker 부재로 미실행 → T02 착수 조건) |
+| T02 | Supabase PostgreSQL 마이그레이션: 기관·사용자(인증 사용자 매핑)·환자·상담 기본 스키마, RLS 기본 차단·GRANT, 합성 seed, 로컬 Supabase 기동 검증(2026-10-02 D1에서 변경) | T01A | TODO |
+| T03 | Supabase Auth 직원 로그인(아이디 매핑 P20·O13), 요청 인증·업무 사용자 매핑, 역할·기관 권한, 관리자 계정관리(Admin API), 비활성화·권한 변경 즉시 반영 | T02 | TODO |
 | T04 | OUTFOOT 토큰·레이아웃·공통 UI, 로그인·오류 화면 | T01 | DONE 2026-09-23 |
 | T04A | 전체 정적 화면·역할별 메뉴·페이지 링크, 합성 데이터 상태 구현. 768~1279px 좌측 메뉴 축소, 시안 역할 Pinia 공유·관리자 경로 가드(`/403`) 포함 | T04 | DONE 2026-09-28 |
 | T04B | 클라이언트 화면 피드백 반영·화면 기획 확정 | T04A | IN_PROGRESS |
@@ -15,20 +16,34 @@
 | T06 | 상담 생성·담당자·상태, 링크 발급·복사 | T03·T05 | TODO |
 | T07 | 버전된 고정 질문지, 분기·제출·중복방지, 모바일 UI | T06 | TODO |
 | T08 | 상담 작업 화면, 원답·확인값·주의신호·명시적 저장·충돌 | T07 | TODO |
-| T09 | 비공개 R2 미디어 업로드·메타·권한·좌우 발도장 슬롯 | T03·T08 | TODO |
+| T09 | 비공개 Supabase Storage 업로드(서명 업로드 URL)·메타·권한·좌우 발도장 슬롯(2026-10-02 R2에서 변경) | T03·T08 | TODO |
 | T10 | 발도장 분석 어댑터 계약·작업상태·미구성·mock fixture | T09 | TODO |
+| T10A | 지속 작업 실행기: 작업 테이블·원자적 선점·임대 회수·재시도 상한·pg_cron 호출·결과 불명 처리(P21) | T02·T10 | TODO |
 | T11 | 실제 샘플 기술검증 및 ADR, 지원 항목·검수 기준 확정 | O01·O02 | BLOCKED |
 | T12 | 선택된 실제 발도장 공급자 구현·정규화·보완 | T10·T11 | BLOCKED |
-| T13 | AI 구조·프롬프트/지식 버전·mock·오래됨·오류처리 | T08·T10 | TODO |
+| T13 | AI 구조·프롬프트/지식 버전·mock·오래됨·오류처리 | T08·T10·T10A | TODO |
 | T14 | 승인 자료로 AI 평가, 선택한 실제 AI 공급자 연결·사용량 | O04·O06·O07 | BLOCKED |
-| T15 | 최종본 개정·고객안내·브라우저 인쇄 | T13 | TODO |
+| T15 | 최종본 개정(권한·입력 버전 비교·확정본·감사의 원자적 확정)·고객안내·브라우저 인쇄 | T13 | TODO |
 | T16 | 관리자 삭제·감사로그·운영 조회 | T03·T15 | TODO |
 | T17 | 접근성·보안·E2E·성능·실패복구와 문서 갱신 | T03~16 | TODO |
-| T18 | Cloudflare 스테이징·백업·관측·배포·운영 인수 | O07·O08·T17 | BLOCKED |
+| T18 | Cloudflare 정적 배포·Supabase 스테이징·백업·관측·운영 인수(함수 외부 파일 import 배포 확인 포함) | O07·O08·T17 | BLOCKED |
+| T19 | AWS 이전(EC2·RDS·S3·Node.js), 인증 유지/전환 | O14 | BLOCKED |
 
 ## 권장 구현 순서
 
-`T01 → T04 → T04A → T04B → T02·T03 → T05~T09 → T10·T13 → T15·T16 → T17`로 진행합니다. T04A에서는 실제 기능 성공처럼 보이지 않는 합성 데이터로 전체 화면과 링크를 구현하고, T04B에서 클라이언트 피드백으로 화면을 확정한 뒤 저장·권한·분석 기능을 연결합니다. T11은 샘플이 오는 즉시 별도 실험으로 병행하되, 실제 공급자 T12를 나머지 플랫폼의 선행조건으로 만들지 않습니다.
+`T01 → T04 → T04A → T04B → T02·T03 → T05~T09 → T10·T10A·T13 → T15·T16 → T17`로 진행합니다. T01A(기술 전환 기반)는 T04B 클라이언트 확인과 병행했습니다. T02·T03의 DB·서버 준비는 T04B 확인과 병행할 수 있지만, 화면의 실제 업무 연결은 T04B 화면 확정 후 기존 순서와 의존성을 따릅니다. T04A에서는 실제 기능 성공처럼 보이지 않는 합성 데이터로 전체 화면과 링크를 구현하고, T04B에서 클라이언트 피드백으로 화면을 확정한 뒤 저장·권한·분석 기능을 연결합니다. T11은 샘플이 오는 즉시 별도 실험으로 병행하되, 실제 공급자 T12를 나머지 플랫폼의 선행조건으로 만들지 않습니다.
+
+## 후속 기술 작업 완료 기준 (2026-10-02 정리)
+
+| ID | 범위 | 의존 | 완료 기준 |
+| --- | --- | --- | --- |
+| T02 DB·RLS | **착수 시 먼저** 로컬 `supabase start`와 `npm run functions:serve`로 Edge Runtime에서 함수 실행·`supabase/functions` 밖 공용 코드 import 확인(AT-40 로컬). 이후 기관·업무 사용자(`authUserId` 매핑)·환자·상담·회차·유형 테이블, 인덱스, `version` 열, RLS 활성화·기본 차단, 필요한 GRANT만, 합성 seed | T01A, Docker 로컬 Supabase | AT-40 로컬 통과(실패 시 대안 결정 기록), `supabase db reset`으로 빈 DB에 적용, anon·authenticated 키로 Data API 직접 조회·변경 거부(AT-26 일부). `auto_expose_new_tables = false`는 새 테이블 자동 노출만 막는 설정이므로 RLS·GRANT는 이 작업의 테스트로 따로 확인. 마이그레이션 문서화, Supabase 전용 기능 사용 시 [이전 문서](19_PLATFORM_MIGRATION.md) 갱신 |
+| T03 인증 | 아이디 매핑 로그인, `/me`, `StaffAuthenticator` 구현(토큰 검증 + 업무 DB 현재 상태 조회), 관리자 계정 생성·비활성화(차단·세션 정리)·역할 변경(차단 없이 현재 권한 반영)·비밀번호 초기화(Admin API, 관리자 권한 명시 검사), ban의 세션·갱신 토큰 효과 확인 | T02 | AT-01·23·24·25 로컬 통과, `verify_jwt = false` 상태에서 직원 경로 중 인증 검사가 없는 경로가 없음을 테스트, 업무 DB에 비밀번호 해시 없음, 웹 번들에 secret 키 없음, O13 결정 또는 제안 유지 기록 |
+| T05~T08 업무 API | 환자·상담·질문지·방문상담 API와 화면 연결, 낙관적 잠금, 공개 질문지 토큰 경로 분리·해시 저장·만료·폐기·중복 제출, 토큰 전달 방식 결정 | T03, T04B 화면 확정 | AT-02~09·19 로컬 통과, 다른 기관 접근 거부, 플랫폼 로그 토큰 검증(AT-39) 로컬 수행·스테이징은 T18 |
+| T09 파일 | 비공개 버킷·버킷 크기·형식 제한, 서명 업로드·조회 URL 발급(권한 확인 후, 저장 안 함), 완료 검증, `StoredObjectRef` 메타데이터 | T03·T08 | AT-10·11·27 로컬 통과 |
+| T10·T10A 분석 작업 | 분석 요청·조회 분리, 작업 테이블·선점 DB 함수·임대 회수·외부 전송 단계(`dispatchState`) 기록·재시도 상한(회수 포함)·`OUTCOME_UNKNOWN`·수동 재시도 기록, pg_cron 호출 경로와 내부 작업 경로 인증, 미구성·측정불가 구분 | T02·T09 | AT-12·16·28·29·31~33·38 로컬 통과(합성·mock 공급자 호출 수로 확인), "정확히 한 번" 표현 없음 |
+| T13·T15 AI·확정 | mock AI 실행 이력·오래됨, 원자적 최종확정 DB 함수(잠금·버전 비교·중복 방지·트랜잭션 내 권한 재확인 방식은 이 작업에서 정하고 검증) | T10A | AT-14·15·17·18·30·34~37 로컬 통과. 실제 AI 연결은 T14(O04·O06·O07) |
+| T18 스테이징 | Cloudflare 정적 배포, Supabase 스테이징 프로젝트·비밀값·백업·관측, 원격 함수 번들·배포 확인(AT-40 원격), 원격 로그의 토큰 확인(AT-39) | O07·O08·T17 | 원격 스테이징에서 MVP 전체 흐름([검수](14_ACCEPTANCE_TESTS.md#mvp-전체-흐름-검수-목표)) 확인 |
 
 ## 작업 기록 양식
 
@@ -163,3 +178,71 @@
 - 남은 제한·미결정: 저장된 방문 기록과 그 상태는 합성 fixture라 실제 저장·확인 이력이 아닙니다. 방문상담 `확인 완료`의 실제 기준(필수 입력·확인값·확인자)은 T08과 O04·O05에서 정합니다. 사전답변의 확인할 항목 목록(C05·C08·C04)은 합성 예시이고 주의신호 기준은 O04 전입니다. 상단 주의신호 요약은 fixture 값이며 저장 기록에서 계산하지 않고, 일치 여부만 테스트로 지킵니다. 초안은 여전히 새로고침하면 사라집니다.
 - Codex 검토 반영(2026-10-02): `18_FRONTEND_SCREEN_CONTENT_PLAN.md`와 `data/preview.ts` 주석에서 "저장하지 않은 입력은 탭 상태를 바꾸지 않는다"의 범위를 사전답변·방문상담 완료 상태와 저장값 요약으로 한정하고, 사진·발도장 필요 여부는 확인 유형 초안을 즉시 반영한다고 명시했습니다. 문서·주석만 바꿨고 동작은 그대로입니다.
 - T06 후속 검토 사항(이번 범위 제외): 신규 접수의 다음 회차를 `삭제되지 않은 상담 수 + 1`(`IntakePage.vue` `nextRound`)로 계산해, 논리삭제된 회차가 있으면 같은 회차 번호가 다시 쓰일 수 있습니다(예: p-a는 삭제된 2회 c-106-deleted가 있어 다음 접수도 2회). 삭제 후 회차 번호를 다시 쓸지, 비워 둘지는 정하지 않았으며 T06에서 회차 부여 정책으로 검토합니다.
+
+## T01A 기술 전환 기반 정리 · 2026-10-02
+
+- 근거: 2026-10-02 사용자 결정(D25 MVP 구성: Cloudflare 정적 웹 + Supabase PostgreSQL·Auth·Storage·Edge Functions, D26 AWS 이전 준비·일정 미정). 범위는 기술 기반 정리 한 묶음이며 로그인·DB 테이블·질문지·파일·분석·확정의 실제 연결은 하지 않았습니다. 업무 범위·임상 기준·권한 정책, P13~P16, O01~O12 보류는 그대로입니다. T04B는 클라이언트 확인 전이라 `IN_PROGRESS`를 유지합니다.
+- 시작 시 확인(사실): HEAD `1aa7b21`, 미커밋 변경 없음. 실제 데이터·API 연결 기능 없음. Workers API(`apps/api`)는 health·합성 데모 2개 경로뿐이고 웹은 호출하지 않았음. Express·Prisma 등 다른 서버 구현 없음. D1·R2는 바인딩 이름만 있고 마이그레이션 없음. 로컬에 Supabase CLI·Deno·Docker 없음.
+- Cloudflare 정적 제공: Workers Static Assets 정적 전용 설정(`apps/web/wrangler.jsonc`, `main` 없음, SPA 대체 응답)을 선택했습니다(P17, 근거는 [아키텍처](08_ARCHITECTURE.md#cloudflare-정적-제공)). Cloudflare Vite 플러그인을 빼고 일반 Vite 빌드(`dist/client`)로 바꿨으며, `dist` 바로 아래의 사용자 검토용 HTML은 빌드가 지우지 않습니다. 이전 플러그인이 남긴 `.wrangler/deploy/config.json` 리다이렉트가 옛 Worker(D1·R2 바인딩, health·데모 API)를 가리켜 `wrangler dev`가 옛 API를 응답하는 것을 발견해, 생성물(`apps/web/.wrangler/deploy`, `apps/web/dist/outfoot_analysis_mvp`, Git 제외 대상)을 지우고 `cf:preview`·`cf:deploy`가 `-c wrangler.jsonc`로 설정을 명시하게 했습니다(dry-run으로 리다이렉트 무시 확인).
+- Workers·D1·R2 정리: `apps/api` 워크스페이스(Worker, D1·R2 바인딩, 데모 API, 테스트 2개), `.dev.vars.example`, 루트 `cf:typegen`, `@cloudflare/vite-plugin`, 웹 `services/api.ts`(미사용 데모 호출), 공용 계약의 데모 스키마·fixture와 그 테스트(`data/demoConsultations.test.ts`)를 제거했습니다. 정적 화면의 합성 데이터 시안과 표시는 그대로입니다.
+- 서버 골격: `packages/api-core`(웹 표준 Request/Response 처리기, 설정 검증 `loadServerConfig`, CORS 출처 제한, 오류 형식, 경로 이름만 남기는 로그, 플랫폼 경계 타입 `ports.ts` — 인증·업무 사용자 ID 분리, `StoredObjectRef`)와 Edge Function 진입점 `supabase/functions/api`(`Deno.serve`, `Deno.env`, `deno.json` import map, lockfile 끔)를 만들었습니다. 현재 경로는 `GET /api/v1/health` 하나이며 DB·인증·파일은 `NOT_CONNECTED`, AI는 `mock`/`disabled`만 허용합니다. 필수 설정(`APP_ENV`, `AI_MODE`, `ALLOWED_ORIGINS`) 누락·형식 오류 시 모든 요청에 `CONFIG_INVALID`를 답하고 변수 이름만 로그에 남깁니다.
+- 공용 계약: 데모 스키마를 빼고 `healthResponseSchema`(연결 성공을 주장할 수 없는 enum), `apiErrorResponseSchema`, `dataEnvelope`를 추가했습니다.
+- 웹 서비스 경계: `services/config.ts`(공개 설정 검사, `VITE_API_BASE_URL` 누락 시 명확한 오류), `services/http.ts`(호출·계약 검증·오류 변환), `services/system.ts`(상태 확인). 화면은 아직 이 서비스를 호출하지 않습니다(합성 데이터 유지).
+- Supabase 로컬 설정: Supabase CLI 2.119.0(MIT)을 루트 개발 의존성으로 고정하고 `supabase init`으로 `supabase/config.toml`을 만든 뒤 공개가입 차단, Data API 자동 노출 해제(`auto_expose_new_tables = false`), 웹 주소, 비밀번호 제안값(P22), `[functions.api] verify_jwt = false`를 반영했습니다. 마이그레이션 폴더와 환경변수 예시(웹 `.env.example`, 함수 `supabase/functions/.env.example`)를 준비했습니다.
+- 경계 강제: ESLint로 `packages/api-core`의 Supabase SDK·`npm:`·`jsr:`·`node:` import와 `Deno`·`EdgeRuntime`·`process` 사용을 막고, 웹에서 서버 코드 import와 `services/` 밖 Supabase SDK import를 막습니다. 웹 빌드 후 `scripts/check-web-bundle.mjs`가 secret 키 형식·서버 전용 변수 이름을 검사합니다.
+- 문서: 02(D25·D26, P17~P22, O13·O14, 기존 D19·D22·P02·P04·P10 대체 표시), 08(새 구성·코드 경계·Cloudflare 선택 근거·Edge Functions 제한·작업 처리 설계, 이전 구성 기록), 09(PostgreSQL 원칙, 사용자 ID 매핑, 파일 참조, 작업 열), 10(함수 기준 주소·인증 경로 분리·업로드/조회 URL·내부 작업 경로), 11·12(실행 경계·외부 AI 중복 과금 정책), 13(Supabase Auth 차이와 대응, 비활성화 처리, 비공개 파일, 공개 질문지, 비밀값 구분), 14(AT-23~30, MVP 전체 흐름 목표, 검증 단계 구분), 16(구조), 18(R2 표현), 19(신규: 이전 경계·전용 기능 대체·인증 이전 쟁점·운영비 항목), AGENTS, README.
+- 공식 문서 확인(2026-10-02): Edge Functions 제한(CPU 2초, 메모리 256MB, 벽시계 150초/400초, 백그라운드 작업 완료 비보장), 함수 자동 주입 변수와 `SUPABASE_` 예약 접두사, Supabase Auth의 아이디 로그인 미지원, 접근 토큰 만료 전 취소 불가, 서명 업로드 URL 2시간, Storage에서 service 키의 RLS 우회, pg_cron+pg_net+Vault 일정 실행, Cloudflare 정적 자산 무료·무제한·정적 전용 SPA 설정. `supabase/functions` 밖 파일 import는 배포 시 `--use-api` 서버 번들에서 지원된다는 안내가 있으나 실험 단계로 기록돼 있어 T18에서 확인합니다. OpenAI의 추론 API가 `Idempotency-Key`로 중복 실행을 막는지는 공식 문서에서 확인하지 못했습니다(지원하지 않는다고 가정).
+- 검증(정적 검사·mock): `npm run typecheck`, `npm run lint`(종료 0), `npm test`(웹 128·서버 코어 7·계약 3, 총 138개), `npm run build`(번들 비밀값 검사 통과, 서버 코드 미포함 확인), `npm run functions:check`(Deno 2.9.6 타입 검사), `git diff --check` 통과. 웹 테스트는 데모 fixture 테스트 1개를 제거하고 서비스 경계 3개를 추가했으며, 정적 화면 회귀 테스트는 삭제·완화하지 않았습니다. ESLint 경계 위반 5건과 번들 비밀값 2건을 임시 파일로 넣어 각각 실패하는 것을 확인한 뒤 지웠습니다.
+- 검증(로컬 실행): Deno 2.9.6으로 함수를 실행해 `GET /api/v1/health` 200(연결 상태 `NOT_CONNECTED`), 허용 외 출처 403, 설정 누락 시 500 `CONFIG_INVALID`와 변수 이름만 남는 로그를 확인했습니다. `wrangler dev --local -c wrangler.jsonc`로 `dist/client`를 제공해 `/`, `/consultations`, `/consultations/c-104/visit`, `/patients/p-d`, `/q/preview-active`, `/admin/users` 직접 접근이 모두 `index.html` 200이고, `/api/v1/*`는 Worker 없이 SPA로 떨어져 Cloudflare에 서버 처리 경로가 없음을 확인했습니다(리다이렉트·바인딩 없음). Supabase CLI가 수정한 `config.toml`을 읽고 Docker 단계에서만 멈추는 것(일부러 잘못된 값은 설정 오류로 거부)을 확인했습니다.
+- 실행하지 못한 검증: 로컬 Supabase 기동(`supabase start`), `supabase functions serve`(Supabase Edge Runtime에서의 실행·외부 파일 import, 2026-10-02 후속 검토로 T02 착수 조건으로 앞당김), Auth·Storage·DB 통합 — Docker/Podman이 없어 실행하지 못했습니다. 원격 Supabase·Cloudflare 검증은 범위 밖입니다. Supabase Edge Runtime의 정확한 Deno 버전과 로컬 검사에 쓴 Deno 2.9.6의 차이는 확인하지 못했습니다. 브라우저 화면 수동 확인은 하지 않았고(화면 코드 변경 없음) 자동 테스트로 회귀를 확인했습니다.
+- 남은 제한·위험: `npm audit`가 기존 wrangler·miniflare의 undici 취약점 4건(개발 도구)을 보고합니다. 이번 작업에서 업데이트하지 않았습니다. `apps/web/.wrangler/state`의 옛 로컬 D1·R2 에뮬레이션 상태(Git 제외)는 남겨 두었습니다. 아이디 로그인 매핑(P20)·세션 정리 방법·Supabase 이메일 검증 통과 여부는 T03에서 확인해야 합니다.
+- 다음: T04B 클라이언트 확인과 병행해 Docker 설치 후 T02(마이그레이션·RLS·로컬 Supabase 기동)부터 진행합니다.
+
+## T01A 후속 — 기술 전환 기반의 검사·설정·설계 정합성 보완 · 2026-10-02
+
+- 근거: Codex의 T01A 검토. 범위는 검사 장치·설정·설계 문서 보완이며 T02 이후 기능(DB·인증·파일·분석·확정)은 구현하지 않았습니다. D25·D26 확정, P17~P22 제안, O13·O14 보류, 화면·업무·임상·권한 정책, T04B `IN_PROGRESS`는 그대로입니다. 각 항목은 수정 전에 재현했습니다.
+- A 번들 비밀값 검사(재현·수정): role이 `service_role`인 합성 JWT와 `sk-proj-` 형식 합성 문자열이 통과하는 것을 확인했습니다. `scripts/check-web-bundle.mjs`가 JWT 후보의 payload에서 role만 읽어 `service_role`·`supabase_admin`을 찾고(서명 검증 아님, 해석 실패는 무시), `sk-` 뒤 문자·숫자·`-`·`_` 20자 이상을 찾게 했습니다. 공개 값(`sb_publishable_`, role이 `anon`인 JWT)은 허용합니다. 빌드 결과에서 이름이 사라지는 문제를 보완하려고 `--env-dir`로 웹 `.env*` 파일과 실행 환경의 `VITE_` 변수 중 비밀값으로 보이는 이름·값도 검사합니다. 출력에는 파일·변수 이름과 규칙 이름만 남깁니다. Supabase 키 형식(`sb_secret_`·`sb_publishable_`, 레거시 키는 JWT)은 공식 문서로 확인했고, OpenAI `sk-proj-` 하위 접두사는 공식 문서로 확인하지 못해 `sk-` 일반 형식으로 찾습니다. 형식이 없는 비밀값은 찾지 못한다는 한계를 08·13에 적었습니다. 회귀 테스트 `scripts/check-web-bundle.test.mjs`(6)가 스크립트를 실제 실행해 허용·탐지·잘못된 JWT·환경변수·사용법 오류와 원문 비노출을 확인합니다.
+- B ESLint 경계(재현·수정): 접두사 없는 `fs`, 동적 `import("@supabase/supabase-js")`, `globalThis.process`, 웹의 상대경로 `packages/api-core` import가 모두 통과하는 것을 확인했습니다. 이는 **검사 장치가 유입을 놓친 문제**이며, 현재 `packages/api-core`·`contracts`·웹 소스에는 이런 사용이 없습니다(주석만 있음). `eslint.config.js`에 Node 내장 모듈 전체(`node:module`의 `builtinModules`, 접두사 유무), 동적 import(런타임 중립 코드는 전부 금지, 웹은 서버 코드·services 밖 Supabase SDK 금지), `globalThis`·`self`·`window`·`global`과 타입 단언을 거친 플랫폼 전역 접근, 상대경로 서버 코드(`packages/api-core`, `api-core/src`, `supabase/functions`) 규칙을 넣고 `packages/contracts`에도 같은 중립 규칙을 적용했습니다. 웹 `services` 안의 Supabase SDK(정적·동적)와 웹 표준 API는 허용합니다. `scripts/eslint-boundaries.test.mjs`(5개 테스트, 허용·차단 사례 37개)가 실제 설정으로 확인합니다. 별칭 변수로 전역을 꺼내는 우회까지는 막지 못하며 문서에 한계로 적었습니다.
+- C 설정 오류와 CORS(재현·수정): `ALLOWED_ORIGINS`가 정상이고 `AI_MODE`만 없을 때 허용 출처의 사전 요청이 500, 본 요청이 CORS 헤더 없는 500인 것을 테스트로 재현했습니다. `parseAllowedOrigins`로 출처 목록을 따로 해석해, 목록이 정상이면 허용 출처의 사전 요청은 204, 본 요청은 CORS 헤더가 있는 `CONFIG_INVALID` 500을 받습니다. 목록이 없거나 틀리면(`*`, 경로 포함 등) 어떤 출처에도 CORS 헤더를 주지 않고, 허용되지 않은 출처는 설정 오류 중에도 403입니다. 와일드카드·임의 Origin 반사는 없고 응답·로그에 설정값이 나오지 않습니다. 테스트 2개를 추가했고 Deno 실행환경에서도 같은 결과(204·CORS 있는 500·403)를 확인했습니다.
+- D 웹 환경변수 타입(재현·수정): `import.meta.env.VITE_API_BASE_URL`을 `number`에 대입해도 오류가 없어 `any`임을 확인했습니다. `env.d.ts`의 선언을 `declare global`로 옮기고 Vue Router `RouteMeta` 선언은 유지했습니다. `src/test/env-types.ts`(타입 검사 전용)가 `@ts-expect-error`로 실제 사용 지점의 타입을 확인하며, 수정 전 형태로 되돌리면 `npm run typecheck`가 실패하는 것을 확인한 뒤 원복했습니다. Vite 기본 선언의 색인 서명 때문에 선언하지 않은 이름(오타)은 여전히 `any`이며, 타입 선언은 비밀값 유출 방지 장치가 아닙니다.
+- E 배포 전 검사(확인·수정): `cf:deploy`가 Wrangler만 실행하는 것을 확인하고 `npm run build && wrangler deploy -c wrangler.jsonc`로 바꿨습니다. `cf:preview`도 웹 패키지에서 빌드를 먼저 하고 루트는 위임만 해 빌드가 두 번 돌지 않습니다. 실패 사례(`VITE_SUPABASE_SERVICE_ROLE_KEY` 합성 값)에서 종료 코드 1로 Wrangler 단계에 도달하지 않고 값도 출력되지 않음을, 통과 사례에서 `--dry-run`(업로드 없음)까지 진행함을 확인했습니다. 실제 배포는 하지 않았습니다.
+- 설계 문서(구현 없음): 08·09·12에 외부 전송 단계(`dispatchState`: 전송 직전 소유권·임대 확인과 `SENDING` 기록 후 전송), 전송 전/후 중단 회수 구분, 임대 토큰은 덮어쓰기 방지일 뿐 중복 과금 방지가 아님, 회수 재선점도 재시도 상한에 포함, 중복 제출과 담당자 확인 수동 재시도 구분을 P21 제안으로 적었습니다. 13에 계정 비활성화(차단·세션 정리, ban 효과는 미확인)와 역할 변경(차단 없이 현재 권한 반영)을 분리하고, `verify_jwt = false`에 따른 경로별 인증을 후속 필수 조건으로 적었습니다. 09·14에 최종확정 경합(입력 수정 동시, 중복 요청, 권한·담당자 변경, 저장 실패 전체 취소)을 T15 검증 항목으로 두었습니다. 10·13에 토큰 로그 검증 범위를 api-core 자체 로그로 한정하고, 공식 문서상 게이트웨이 로그는 경로로 검색되고 함수 호출 기록은 헤더·본문을 담으므로 플랫폼 기록은 합성 토큰으로 별도 검증(AT-39)한다고 적었습니다(실제 유출은 확인되지 않음). 함수의 외부 공용 코드 import·Edge Runtime 실행 확인을 T02 착수 조건(AT-40 로컬)으로 앞당기고 원격 번들은 T18로 나눴습니다. 14에 AT-31~40을 추가하고 AT-24·28을 보강했습니다.
+- 잔재 정리: `package-lock.json`의 삭제된 `apps/api` extraneous 항목을 지웠고(`npm install --package-lock-only` 후에도 다시 생기지 않음, 다른 항목 변화 없음), `node_modules/@outfoot/api` 끊어진 링크는 `npm prune`으로 정리됐습니다. `MediaTab.vue`의 "R2 저장 완료" 주석을 저장소 표현으로 바꿨고 발가락 코드 `R1~R5` 등은 바꾸지 않았습니다.
+- 검증(정적 검사·mock): `npm run typecheck`(환경변수 타입 검사 파일 포함), `npm run lint`(종료 0), `npm test`(웹 128·서버 코어 9·계약 3·스크립트 11, 총 151개), `npm run build`(번들·웹 환경변수 비밀값 검사 통과, 서버 코드 미포함), `npm run functions:check`(Deno 2.9.6), `git diff --check` 통과. 기존 테스트는 삭제·완화하지 않았습니다.
+- 검증(로컬 실행): Deno로 함수를 실행해 설정 오류 시 허용 출처 204·CORS 있는 500, 비허용 출처 403을 확인했습니다. `cf:deploy -- --dry-run`으로 검사 실패 시 차단·통과 시 진행을 확인했습니다.
+- 미검증: 로컬 Supabase 통합(Docker 없음 → T02 착수 시 AT-40부터), 원격 Supabase·Cloudflare(범위 밖, T18), 플랫폼 로그의 토큰(AT-39, T07·T18), ban의 세션 효과(T03), Edge Runtime의 Deno 버전 차이.
+- 다음: 후속 업무 기능은 지시를 기다립니다. T02 착수 시 Docker 준비 후 AT-40(로컬 functions serve)부터 확인합니다.
+
+## T01A 후속 2차 — ESLint 플랫폼 경계 보완 · 2026-10-02
+
+- 근거: Codex 재검토에서 남은 ESLint 문제 3건. 범위는 `eslint.config.js`, `scripts/eslint-boundaries.test.mjs`, 문서 08·15입니다. 비밀값 검사·CORS·환경변수 타입·배포 체인과 DB·인증·파일·분석·확정 기능은 바꾸지 않았습니다. D25·D26 확정, P17~P22 제안, O13·O14 보류, T04B `IN_PROGRESS`는 그대로입니다.
+- 구분: 세 건 모두 **검사 규칙의 누락·오탐**입니다. 현재 업무 코드(`packages/api-core`, `packages/contracts`, `apps/web/src`)에서 플랫폼 의존성은 발견되지 않았고, 수정한 규칙으로 저장소 전체 `npm run lint`가 통과합니다.
+- A import 경계(재현·수정): 웹 페이지의 백틱 `` import(`@supabase/supabase-js`) ``, 웹 페이지·services의 백틱 `packages/api-core` 동적 import, 코어의 `import "../../../supabase/functions/api/index.ts"`(재수출 포함)가 통과하는 것을 재현했습니다. 원인은 동적 import 검사가 `Literal`만 봤고 코어에 실행환경 진입점 경로 제한이 없었던 것입니다. 일반 문자열과 표현식 없는 템플릿 문자열에 같은 정규식을 적용하고, 코어·계약의 `no-restricted-imports`에 `supabase/functions` 경로를 추가했습니다. 코어 내부 상대경로(`./config.ts`)는 허용됩니다. 재수출(`export … from`)은 기존 `no-restricted-imports`가 이미 같은 기준으로 막고 있어 테스트로만 고정했습니다.
+- B 플랫폼 전역(재현·수정): 코어의 `Buffer.from("synthetic")`, `(globalThis as unknown as Record<string, unknown>)["Deno"]`가 통과하는 것을 재현했습니다. Node 전용 전역 `Buffer`, `require`, `module`, `exports`, `__dirname`, `__filename`, `setImmediate`, `clearImmediate`를 금지 목록에 더했고, 전역 객체(`globalThis`·`self`·`window`·`global`) 접근은 점 표기와 문자열 대괄호 표기를 모두, 타입 단언(`as`·`satisfies`·`!`·`<T>`)은 두 겹까지 벗겨 실제 대상이 전역 객체인지 확인합니다. Request·Response·Headers·URL·fetch·crypto는 허용합니다.
+- C 일반 객체 오탐(재현·수정): `(data as { process: string }).process`가 막히는 것을 재현했습니다. 이전 규칙이 타입 단언이 있으면 대상과 관계없이 속성명만으로 막았기 때문입니다. 위 B의 대상 확인 방식으로 바꿔 일반 객체의 `process`·`Deno`·`Buffer` 속성은 허용하고, 기존 타입 단언 우회 차단 사례(`(globalThis as unknown as …).process`)는 그대로 차단합니다.
+- 회귀 테스트(`scripts/eslint-boundaries.test.mjs`, 6개 테스트·71개 사례): 차단 48개(코어 25: Node 내장(접두사 유무·재수출), Supabase SDK(정적·재수출), `npm:`, 진입점 상대경로(import·재수출), 일반 문자열·백틱·변수 동적 import, `process`·`Deno`·`Buffer`·`__dirname`·`setImmediate`, 전역 객체의 점·대괄호·단언 한 겹·두 겹·non-null 접근 / 계약 8 / 웹 페이지 11: 서버 코드 패키지명·상대경로·재수출·일반 문자열·백틱 동적 import, Supabase SDK 정적·재수출·일반 문자열·백틱 동적 import / services 4: 서버 코드 일반 문자열·백틱 동적 import). 허용 23개(코어 13: zod·contracts·내부 모듈·내부 재수출, crypto·Request·Response·Headers·URL·fetch, 일반 객체의 `process`·`Deno`·`Buffer` 속성의 점·대괄호·단언 한 겹·두 겹 / 계약 2 / 웹 페이지 4: services·contracts import, Vue 화면 일반 문자열·백틱 지연 import / services 4: Supabase SDK 정적·일반 문자열·백틱 동적 import, fetch). 대상 규칙(`no-restricted-imports`·`no-restricted-syntax`·`no-restricted-globals`)의 메시지만 세고, 파서 오류는 차단·허용 어느 쪽으로도 세지 않고 실패로 처리합니다(이를 확인하는 테스트 1개 포함).
+- 회귀 확인: 이번 수정을 하나씩 되돌린 설정 5종(템플릿 문자열 검사 제거, `Buffer` 제외, 진입점 경로 제한 제거, 대상 무관 단언 차단 복원, 두 겹 단언 확인 제거)에서 테스트가 각각 실패(1~2건)하는 것을 확인한 뒤 원복했습니다.
+- 검증: `npm run test:scripts`(12개, 비밀값 검사 6·경계 6), `npm run lint`(종료 0), `npm run typecheck`, workspace 테스트(웹 128·서버 코어 9·계약 3), `npm run build`(번들·웹 환경변수 비밀값 검사 통과), `npm run functions:check`(Deno 2.9.6), `git diff --check` 통과. 배포 명령은 실행하지 않았습니다. 로컬 Supabase 통합은 Docker가 없어 이번에도 미실행입니다(이번 수정과 무관).
+- 검사 장치가 보장하지 못하는 한계: 별칭 변수(`const g = globalThis; g.process`), 문자열 조합·표현식이 든 템플릿 경로(`` import(`${base}/x`) ``, 웹에서만 해당. 코어·계약은 동적 import 전체 금지), 세 겹 이상 타입 단언, 계산된 속성명(`globalThis[name]`), `eval`·`Function` 등은 분석하지 않습니다. 이 부분은 Node(Vitest)·Deno 타입 검사와 코드 검토로 보완합니다.
+
+## T01A 후속 3차 — ESLint 전역 접근 오탐 보완 · 2026-10-02
+
+- 근거: Codex 재검토의 P3 오탐 1건. 범위는 `eslint.config.js`, `scripts/eslint-boundaries.test.mjs`, 문서 08·15입니다. 2차에서 해결한 import 경계·Node 전용 전역 차단은 그대로이며 업무 코드·비밀값 검사·CORS·배포 체인은 바꾸지 않았습니다. D25·D26 확정, P17~P22 제안, O13·O14 보류, T04B `IN_PROGRESS`는 그대로입니다.
+- 재현한 오탐(검사 규칙 문제, 업무 코드 의존성 아님): (A) `export const read = (window: { process: string }) => window.process;` — 매개변수 `window`를 전역 객체로 오인. (B) `const process = "crypto"; export const value = globalThis[process];` — 계산된 속성의 변수 이름 `process`를 속성명으로 오인. 두 사례 모두 기존 `no-restricted-syntax` 셀렉터에 걸리는 것을 확인했습니다. 셀렉터는 이름만 볼 수 있어 지역 선언 여부를 알 수 없고, `property.name`이 계산된 식별자에도 걸렸기 때문입니다.
+- 수정 방식: 전역 객체 접근 셀렉터를 새 패키지 없이 `eslint.config.js` 안의 작은 로컬 규칙 `outfoot/no-platform-global-access`(코어·계약에만 적용)로 바꿨습니다. 타입 단언(`as`·`satisfies`·`!`·`<T>`)을 두 겹까지 벗긴 식별자가 `globalThis`·`self`·`window`·`global`이고, 스코프에서 지역 변수·매개변수 선언(defs)이 없는 실제 전역일 때만 검사합니다. 속성은 점 표기의 이름과 대괄호 안 문자열 리터럴만 보고, `globalThis[name]` 같은 계산된 접근은 문서대로 검사하지 않습니다. 변수 값 추적·상수 전파·별칭 분석은 넣지 않았습니다.
+- 회귀 테스트(`scripts/eslint-boundaries.test.mjs`): 허용 사례 10개를 더했습니다(사례 A·B, `self`·`globalThis`·`global`을 지역 매개변수로 받은 점·대괄호 접근, 모듈 지역 변수 `window`, 지역 객체에 단언 한 겹·두 겹 후 `process`·`Deno`·`Buffer`, `globalThis[name as …]`). 차단 사례 5개를 더했습니다(`window["Deno"]`, `globalThis["process"]`, 실제 전역의 단언 한 겹 점 접근·두 겹 대괄호 접근, 같은 파일의 다른 함수에 지역 `window`가 있어도 모듈 수준의 실제 `window["process"]`). 기존 차단 사례(`globalThis.process`, `globalThis["Deno"]`, `self.Buffer`, `window["process"]`, 단언 한 겹·두 겹·non-null, Node 전용 전역, import 경계)는 삭제·완화하지 않았고, 새 규칙 ID를 경계 규칙 집합에 넣어 대상 규칙의 메시지만 셉니다. 파서 오류는 기존대로 차단·허용 어느 쪽으로도 세지 않고 실패로 처리합니다.
+- 회귀 확인: 규칙을 하나씩 되돌린 변형 5종(규칙 끄기, 단언 한 겹만 벗기기, 스코프 확인 제거, 계산된 식별자를 속성명으로 보기, 문자열 대괄호 검사 제거)에서 테스트가 각각 실패(1~2건)하는 것을 확인한 뒤 원복했습니다.
+- 검증: `npm run test:scripts`(12개 통과), `npm run lint`(종료 0), `npm run typecheck` 통과, `git diff --check` 통과. ESLint 설정만 바뀌어 workspace 테스트·웹 빌드·Deno 검사는 이번에 다시 실행하지 않았습니다(직전 2차 기록의 결과가 마지막 실행입니다).
+- 남은 한계: 별칭 변수(`const g = globalThis; g.process`), 계산된 속성명(`globalThis[name]`, 대괄호 안 템플릿 문자열 포함), 세 겹 이상 단언, `eval`·`Function`, 웹의 문자열 조합·표현식이 든 동적 import 경로는 분석하지 않습니다. 선언 없이 전역에 등록된 이름만 전역으로 보므로, `declare const window: …`처럼 코드에 선언을 두면 지역으로 취급합니다.
+
+## T01A 후속 4차 — ESLint 실제 참조 대상 판정 보완 · 2026-10-02
+
+- 근거: Codex 재검토의 P3 검사 누락 1건. 범위는 `eslint.config.js`, `scripts/eslint-boundaries.test.mjs`, 문서 08·15입니다. 업무 코드·인증·DB·CORS·비밀값 검사·배포 설정은 바꾸지 않았습니다. D25·D26 확정, P17~P22 제안, O13·O14 보류, T04B `IN_PROGRESS`는 그대로입니다.
+- 재현(검사 규칙의 누락, 업무 코드 의존성 아님): 실제 설정과 가상 경로(`packages/api-core/src`, `packages/contracts/src`)로 lintText를 실행해 두 사례 모두 메시지 0건임을 확인했습니다. (A) 매개변수 기본값 `value = (self as unknown as { Deno: unknown }).Deno`와 본문 `const self = …` — 기본값의 `self`는 실제 전역인데 통과. (B) `export type self = …` 뒤 `(self as unknown as { Deno: unknown }).Deno` — 타입 별칭이 런타임 전역을 가리지 않는데 통과.
+- 원인: 3차의 `isDeclaredLocally`가 스코프에서 같은 이름의 변수를 이름으로 찾고 선언(defs)이 있는지만 봤습니다. 함수 본문의 `const`는 함수 스코프에 들어 있어 기본값 위치의 참조까지 지역으로 판단했고(A), 모듈 스코프의 타입 별칭 변수의 선언을 값 선언으로 오인했습니다(B). 같은 입력에서 파서의 참조 정보는 정확했습니다(A 2행 `self` → 전역·선언 없음, 5행 → 함수 스코프 지역 변수, B → 전역).
+- 수정: 이름 검색을 없애고, 대상 식별자의 실제 참조(`scope.references`에서 그 식별자의 reference)를 찾아 `reference.resolved`가 선언(defs) 있는 변수로 해석될 때만 지역 값으로 보고 검사를 생략합니다. 해석되지 않거나 설정 globals·TypeScript lib 전역(선언 없음)으로 해석되면 실제 전역으로 검사합니다. 참조를 찾지 못하면 전역으로 보고 검사합니다(누락보다 차단). 새 패키지·타입 검사 프로그램은 쓰지 않았고 현재 typescript-eslint 스코프 분석만 사용합니다. 처음 넣었던 `isValueVariable` 재확인은 제거해도 테스트가 달라지지 않아(파서가 값 참조를 타입 전용 선언으로 해석하지 않음) 중복으로 보고 뺐습니다. 타입 구분은 파서의 참조 해석과 아래 회귀 테스트로 확인합니다.
+- 유지한 범위: 단언 두 겹, 점 표기와 대괄호 안 문자열 리터럴만 속성명으로 검사, 계산된 속성명·별칭·상수 전파·세 겹 이상 단언은 검사 밖, import 경계·Node 전용 전역 차단, 코드에 선언을 둔 ambient `declare`는 지역으로 취급하는 기존 정책.
+- 회귀 테스트(`scripts/eslint-boundaries.test.mjs` 새 테스트 1개, 코어·계약 경로 각각): 사례 A는 대상 규칙 메시지가 기본값 줄(2행) 한 건뿐이고 본문(5행)은 허용됨을 위치로 확인. 차단 3건 — 사례 B(타입 별칭), `interface window` 뒤 실제 `window.process`, `interface globalThis` 뒤 실제 `globalThis["Buffer"]`. 허용 8건 — 함수 본문 지역 객체, 앞선 매개변수를 참조하는 뒤쪽 기본값(점·대괄호), import 바인딩, 중첩 함수(화살표·함수 선언, 단언 두 겹 포함), 같은 이름의 타입과 실제 지역 값(`type`·`interface`). 기존 차단·허용 사례와 파서 오류 처리는 그대로이며 삭제·완화하지 않았습니다.
+- 회귀 확인: 판정을 3차의 이름 검색 방식으로 되돌리면 새 테스트가 실패(1건), 지역 판정을 끄면(항상 전역) 허용 사례가 실패(2건)하는 것을 확인한 뒤 원복했습니다.
+- 검증: `npm run test:scripts`(13개 통과: 비밀값 검사 6·경계 7), `npm run lint`(종료 0), `git diff --check` 통과. ESLint 설정과 검사 테스트만 바뀌어 typecheck·workspace 테스트·웹 빌드·Deno·Supabase 검증은 이번에 다시 실행하지 않았습니다(마지막 실행은 2차·3차 기록).
+- 남은 한계(의도적으로 검사하지 않음): 별칭 변수(`const g = globalThis; g.process`), 계산된 속성명(`globalThis[name]`, 대괄호 안 템플릿 문자열 포함), 세 겹 이상 단언, `eval`·`Function`, 웹의 문자열 조합·표현식이 든 동적 import 경로. 코드에 `declare const window: …`처럼 값 선언을 두면 그 선언으로 해석되므로 지역으로 취급합니다(기존 정책, 이번에 확대하지 않음). 판정은 typescript-eslint 스코프 분석의 참조 해석에 의존하므로 파서 버전이 바뀌면 이 회귀 테스트로 다시 확인합니다.

@@ -5,7 +5,7 @@ import UiStatusBadge from "../ui/UiStatusBadge.vue";
 import { footprintNeed, footprintNeedLabel, type PreviewConsultation } from "../../data/preview";
 import { useWorkDraftStore } from "../../stores/workDraft";
 
-// 좌우 등록 칸을 먼저 보여주고 촬영 안내는 접어 둡니다. 파일 상태는 로컬 시안이며 R2 저장 완료가 아닙니다.
+// 좌우 등록 칸을 먼저 보여주고 촬영 안내는 접어 둡니다. 파일 상태는 로컬 시안이며 저장소(Supabase Storage) 저장 완료가 아닙니다.
 const props = defineProps<{ consultation: PreviewConsultation; base: string; editable: boolean }>();
 type SlotState = "EMPTY" | "UPLOADING" | "QUALITY" | "RESELECT" | "READY";
 const slotInfo: Record<SlotState, { label: string; tone: "neutral" | "info" | "warning" | "danger" | "success"; next: string; action: string }> = {

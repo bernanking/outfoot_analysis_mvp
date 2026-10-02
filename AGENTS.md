@@ -18,7 +18,9 @@
 ## 구현 원칙
 
 - 사용자 지정 언어는 TypeScript입니다. 웹과 서버 계약을 같은 타입 기준으로 관리합니다.
-- Vue 3·Vite 웹과 Cloudflare Workers API를 중심으로 단일 저장소를 유지합니다. 데이터는 D1, 이미지는 R2를 기본으로 하며 상세 구조는 `docs/08_ARCHITECTURE.md`를 따릅니다.
+- 단일 저장소를 유지합니다(2026-10-02 D25). Vue 3·Vite 웹은 Cloudflare 정적 호스팅(Workers Static Assets, 서버 스크립트 없음)으로 제공하고, 업무 데이터는 Supabase PostgreSQL, 직원 인증은 Supabase Auth, 파일은 Supabase Storage 비공개 버킷, 업무 API는 Supabase Edge Functions로 처리합니다. Cloudflare에 업무 API·Pages Functions를 추가하거나 Workers+Hyperdrive와 섞지 않습니다. 상세 구조는 `docs/08_ARCHITECTURE.md`를 따릅니다.
+- 업무 규칙은 런타임 중립 `packages/api-core`에 두고 Supabase SDK·Deno·Node 전용 API는 실행환경 진입점(`supabase/functions/*`)과 웹 `services/`에만 둡니다. AWS 이전 대비는 `docs/19_PLATFORM_MIGRATION.md`의 작은 경계만 유지하고 과도한 추상화·인프라를 추가하지 않습니다(D26).
+- DB 구조·RLS·GRANT는 `supabase/migrations`로만 관리합니다. 서버 비밀값(secret·service_role 키, DB 접속, AI 키)은 웹 번들·Git·로그에 넣지 않습니다.
 - 역할은 `PRACTITIONER`, `ADMIN`이며 환자는 상담 한 건의 질문지 링크로 접근합니다. AI 계정을 만들지 않습니다.
 - 기관 경계와 담당자 권한을 API와 파일 다운로드 모두에서 검사합니다.
 - 환자 원답, 방문 확인값, 분석 원본, 시술자 최종본을 덮어쓰지 않습니다.
@@ -36,7 +38,7 @@
 - `docs/01_PRD.md`의 제외 기능을 임의 추가하지 않습니다.
 - 패키지 도입 시 현재 공식 문서와 라이선스·호환성을 확인하고 lockfile을 남깁니다.
 - 루트 npm lockfile 하나를 사용합니다. 비밀값과 환자 파일은 Git에 넣지 않습니다.
-- 실제 Cloudflare 원격 자원 변경, 유료 호출, 운영 데이터 변경은 현재 사용자 요청의 허용 범위를 확인합니다. 이미 승인된 범위는 반복해서 묻지 않습니다.
+- 실제 Cloudflare·Supabase·AWS 원격 자원 변경, 유료 호출, 운영 데이터 변경은 현재 사용자 요청의 허용 범위를 확인합니다. 이미 승인된 범위는 반복해서 묻지 않습니다.
 - 접근 통제·자동 승인 거절을 우회하지 않습니다. 자격증명 원문을 출력하지 않습니다.
 - Codex와 Claude가 같은 파일을 동시에 수정하지 않도록 순차 작업합니다.
 - 사용자 또는 적용되는 별도 지침의 요청 없이 하위 에이전트를 만들지 않습니다.
@@ -48,3 +50,4 @@
 - [분석 보류 정책](docs/11_FOOTPRINT_ANALYSIS.md) / [AI](docs/12_AI_ANALYSIS.md)
 - [보안·운영](docs/13_SECURITY_OPERATIONS.md) / [검수](docs/14_ACCEPTANCE_TESTS.md)
 - [작업 기록](docs/15_TASKS.md) / [협업](docs/17_AGENT_WORKFLOW.md)
+- [구조](docs/08_ARCHITECTURE.md) / [플랫폼 이전 경계](docs/19_PLATFORM_MIGRATION.md)

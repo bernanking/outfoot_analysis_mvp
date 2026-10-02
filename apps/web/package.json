@@ -5,10 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build",
+    "build": "vue-tsc --noEmit && vite build && node ../../scripts/check-web-bundle.mjs dist/client --env-dir .",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit",
-    "test": "vitest run --config vitest.config.ts"
+    "test": "vitest run --config vitest.config.ts",
+    "cf:preview": "npm run build && wrangler dev --local -c wrangler.jsonc",
+    "cf:deploy": "npm run build && wrangler deploy -c wrangler.jsonc"
   },
   "dependencies": {
     "@outfoot/contracts": "*",
@@ -16,10 +18,10 @@
     "pinia": "^4.0.3",
     "primevue": "4.5.5",
     "vue": "^3.5.43",
-    "vue-router": "^5.3.1"
+    "vue-router": "^5.3.1",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.57.1",
     "@vitejs/plugin-vue": "^6.0.9",
     "@vue/test-utils": "2.5.1",
     "jsdom": "30.1.1",

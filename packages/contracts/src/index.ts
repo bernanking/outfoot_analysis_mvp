@@ -12,52 +12,38 @@ export const consultationStatusSchema = z.enum([
 ]);
 export type ConsultationStatus = z.infer<typeof consultationStatusSchema>;
 
+// 서버 골격의 상태 확인 응답입니다. DB·인증·파일 연결은 후속 작업(T02·T03·T09) 전까지 NOT_CONNECTED로만 표시하며,
+// 실제 연결 성공처럼 보이는 값을 만들지 않습니다. AI는 mock 또는 비활성만 허용합니다(O06·O07 전 실제 전송 금지).
+export const integrationStateSchema = z.enum(["NOT_CONNECTED"]);
+export const aiModeSchema = z.enum(["mock", "disabled"]);
+export type AiMode = z.infer<typeof aiModeSchema>;
+export const apiRuntimeSchema = z.enum(["supabase-edge", "test"]);
+export type ApiRuntime = z.infer<typeof apiRuntimeSchema>;
+
 export const healthResponseSchema = z.object({
   ok: z.literal(true),
   service: z.literal("outfoot-api"),
-  dataMode: z.literal("synthetic"),
+  runtime: apiRuntimeSchema,
+  integrations: z.object({
+    database: integrationStateSchema,
+    auth: integrationStateSchema,
+    storage: integrationStateSchema,
+    ai: aiModeSchema,
+  }),
 });
 export type HealthResponse = z.infer<typeof healthResponseSchema>;
 
-export const demoConsultationSchema = z.object({
-  id: z.string().min(1),
-  patientLabel: z.string().min(1),
-  concernTypes: z.array(concernTypeSchema).min(1),
-  concernLabel: z.string().min(1),
-  status: consultationStatusSchema,
-  statusLabel: z.string().min(1),
-  synthetic: z.literal(true),
+// 오류 응답 형식입니다. message는 사용자에게 보여줄 수 있는 문장만 담고, 개인정보·비밀값·내부 원인은 넣지 않습니다.
+export const apiErrorCodeSchema = z.enum(["NOT_FOUND", "METHOD_NOT_ALLOWED", "ORIGIN_NOT_ALLOWED", "CONFIG_INVALID", "INTERNAL_ERROR"]);
+export type ApiErrorCode = z.infer<typeof apiErrorCodeSchema>;
+export const apiErrorResponseSchema = z.object({
+  error: z.object({
+    code: apiErrorCodeSchema,
+    message: z.string().min(1),
+    requestId: z.string().min(1),
+  }),
 });
-export type DemoConsultation = z.infer<typeof demoConsultationSchema>;
+export type ApiErrorResponse = z.infer<typeof apiErrorResponseSchema>;
 
-export const demoConsultationListSchema = z.array(demoConsultationSchema);
-
-export const demoConsultations = demoConsultationListSchema.parse([
-  {
-    id: "demo-consultation-001",
-    patientLabel: "합성 환자 A",
-    concernTypes: ["NAIL"],
-    concernLabel: "발톱 상담",
-    status: "QUESTIONNAIRE",
-    statusLabel: "사전질문 작성 중",
-    synthetic: true,
-  },
-  {
-    id: "demo-consultation-002",
-    patientLabel: "합성 환자 B",
-    concernTypes: ["PAIN_INSOLE"],
-    concernLabel: "통증·인솔 상담",
-    status: "IN_VISIT",
-    statusLabel: "상담 중",
-    synthetic: true,
-  },
-  {
-    id: "demo-consultation-003",
-    patientLabel: "합성 환자 C",
-    concernTypes: ["NAIL", "PAIN_INSOLE"],
-    concernLabel: "발톱 + 통증·인솔 상담",
-    status: "ANALYSIS_REVIEW",
-    statusLabel: "분석 검토",
-    synthetic: true,
-  },
-]);
+// 성공 응답은 { data } 형식입니다(docs/10_API_CONTRACT.md).
+export const dataEnvelope = <T extends z.ZodType>(schema: T) => z.object({ data: schema });

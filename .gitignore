@@ -7,10 +7,10 @@ coverage/
 .env
 .env.*
 !.env.example
-.dev.vars
-.dev.vars.*
-!.dev.vars.example
 uploads/
+# Supabase CLI 임시 파일(supabase/.gitignore에도 있음)과 Deno 캐시 부산물
+supabase/.temp/
+deno.lock
 
 # 원본 고객 자료와 비식별 검증 샘플은 로컬에서만 관리합니다.
 references/client-originals/*

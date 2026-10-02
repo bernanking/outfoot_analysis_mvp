@@ -1,0 +1,13 @@
+{
+  // Cloudflare 정적 웹 제공 전용 설정입니다(Workers Static Assets, Worker 스크립트 없음).
+  // main을 두지 않아 요청마다 실행되는 서버 코드가 없고, 업무 API는 Supabase Edge Functions가 처리합니다.
+  // 원격 배포(npm run cf:deploy)는 Cloudflare 계정·도메인·예산 결정(O08)과 별도 승인 후에만 실행합니다.
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "outfoot-web",
+  "compatibility_date": "2026-09-22",
+  "assets": {
+    "directory": "./dist/client",
+    // 파일이 없는 경로(/consultations/c-101/visit 등)는 index.html을 200으로 돌려 Vue Router가 처리합니다.
+    "not_found_handling": "single-page-application"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "lock": false,
+  "imports": {
+    "zod": "npm:zod@4.6.5",
+    "@outfoot/contracts": "../../../packages/contracts/src/index.ts",
+    "@outfoot/api-core": "../../../packages/api-core/src/index.ts"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "@outfoot/api-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --config vitest.config.ts"
+  },
+  "dependencies": {
+    "@outfoot/contracts": "*",
+    "zod": "^4.6.5"
+  }
+}
