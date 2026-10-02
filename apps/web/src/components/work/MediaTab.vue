@@ -2,7 +2,7 @@
 import { computed, ref } from "vue";
 import UiPreviewTools from "../ui/UiPreviewTools.vue";
 import UiStatusBadge from "../ui/UiStatusBadge.vue";
-import type { PreviewConsultation } from "../../data/preview";
+import { footprintNeed, footprintNeedLabel, type PreviewConsultation } from "../../data/preview";
 import { useWorkDraftStore } from "../../stores/workDraft";
 
 // 좌우 등록 칸을 먼저 보여주고 촬영 안내는 접어 둡니다. 파일 상태는 로컬 시안이며 R2 저장 완료가 아닙니다.
@@ -27,7 +27,7 @@ const slotState = (side: "왼쪽" | "오른쪽"): SlotState => slotExample.value
 const drafts = useWorkDraftStore();
 const draft = computed(() => drafts.drafts[props.consultation.id]);
 const types = computed(() => draft.value.confirmedTypes);
-const footprintRequirement = computed(() => types.value.includes("PAIN_INSOLE") ? "기본 필요" : types.value.includes("NAIL") ? "선택" : "유형 확인 후 결정");
+const footprintRequirement = computed(() => footprintNeedLabel[footprintNeed(types.value)]);
 const isNail = computed(() => types.value.includes("NAIL"));
 </script>
 

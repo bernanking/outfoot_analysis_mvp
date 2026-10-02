@@ -2,7 +2,7 @@
 import { computed, ref } from "vue";
 import { RouterLink } from "vue-router";
 import UiStatusBadge from "../ui/UiStatusBadge.vue";
-import type { PreviewConsultation } from "../../data/preview";
+import { resultRevisions, type PreviewConsultation } from "../../data/preview";
 import { usePreviewStore } from "../../stores/preview";
 import { useWorkDraftStore } from "../../stores/workDraft";
 
@@ -24,11 +24,8 @@ const finalizeReason = computed(() => {
   if (!props.canFinalize) return "담당 시술자만 최종확정할 수 있습니다.";
   return "확정 전 확인 대화상자를 거칩니다. 확정 후에는 새 결과로만 고칠 수 있습니다.";
 });
-// 종결된 상담만 확정 결과가 있는 합성 예시입니다. 종결 상담은 개정된 결과 2개를 가정합니다.
-const history = computed(() => props.consultation.status === "FINALIZED" ? [
-  { number: "결과 2", by: "합성 예시", at: "합성 예시", current: true },
-  { number: "결과 1", by: "합성 예시", at: "합성 예시", current: false },
-] : []);
+// 확정 결과는 종결 상담에만 있는 합성 예시입니다. 고객 안내 인쇄와 같은 기준(resultRevisions)을 씁니다.
+const history = computed(() => resultRevisions(props.consultation));
 const shownResult = computed(() => history.value.find((item) => item.current === (view.value === "CURRENT")));
 </script>
 

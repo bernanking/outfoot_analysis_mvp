@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import { RouterLink } from "vue-router";
 import UiStatusBadge from "../ui/UiStatusBadge.vue";
-import { typeLabel, type PreviewConsultation } from "../../data/preview";
+import { questionnaireChecks, typeLabel, type PreviewConsultation } from "../../data/preview";
 import { previewQuestions } from "../../data/questionnairePreview";
 import { useWorkDraftStore } from "../../stores/workDraft";
 
@@ -16,12 +16,10 @@ const groups = computed(() => [
   ...(props.consultation.types.includes("NAIL") ? [{ title: "발톱 답변", questions: previewQuestions["발톱 질문"] }] : []),
   ...(props.consultation.types.includes("PAIN_INSOLE") ? [{ title: "통증·인솔 답변", questions: previewQuestions["통증·인솔 질문"] }] : []),
 ]);
-// 방문 시 다시 확인할 항목의 합성 예시입니다. 주의신호 기준은 O04 확정 전입니다.
-const toConfirm = [
-  { id: "C05", label: "출혈·고름·상처·심한 붓기·열감", reason: "주의신호 후보" },
-  { id: "C08", label: "진단·치료 중 건강상태", reason: "주의신호 후보" },
-  { id: "C04", label: "현재 불편 정도", reason: "오늘 점수와 비교" },
-];
+// 방문 시 다시 확인할 항목과 저장된 방문 기록의 확인값입니다. 탭 상태와 같은 목록을 씁니다.
+// 저장하지 않은 방문상담 입력은 반영하지 않습니다.
+const toConfirm = computed(() => questionnaireChecks(props.consultation));
+const pendingChecks = computed(() => toConfirm.value.filter((item) => !item.confirmed).length);
 </script>
 
 <template>
@@ -33,10 +31,10 @@ const toConfirm = [
   </section>
   <template v-else>
     <section class="surface-card form-stack" aria-labelledby="q-confirm-title">
-      <div class="surface-heading"><h2 id="q-confirm-title">방문 시 확인할 항목</h2><UiStatusBadge :label="`${toConfirm.length}건 · 합성 예시`" tone="warning" /></div>
-      <p class="muted">확인값은 방문상담에서 입력합니다. 환자 원답은 바뀌지 않습니다.</p>
+      <div class="surface-heading"><h2 id="q-confirm-title">방문 시 확인할 항목</h2><UiStatusBadge :label="pendingChecks ? `${pendingChecks}건 확인 필요 · 합성 예시` : '모두 확인됨 · 합성 예시'" :tone="pendingChecks ? 'warning' : 'success'" /></div>
+      <p class="muted">확인값은 방문상담에서 입력하고, 저장된 확인값만 이곳에 표시합니다. 환자 원답은 바뀌지 않습니다.</p>
       <ul class="confirm-list">
-        <li v-for="item in toConfirm" :key="item.id"><div><strong>{{ item.label }}</strong><small><span class="field-code">{{ item.id }}</span> {{ item.reason }} · 환자 원답: 합성 예시</small></div><RouterLink class="text-link" :to="`${base}/visit#visit-safety`">방문상담에서 확인</RouterLink></li>
+        <li v-for="item in toConfirm" :key="item.id"><div><strong>{{ item.label }}</strong><small><span class="field-code">{{ item.id }}</span> {{ item.reason }} · 환자 원답: 합성 예시</small></div><UiStatusBadge v-if="item.confirmed" :label="item.savedText" tone="success" /><RouterLink v-else class="text-link" :to="`${base}/visit#${item.anchor}`">방문상담에서 확인</RouterLink></li>
       </ul>
     </section>
     <section class="surface-card" aria-labelledby="q-submission-title">

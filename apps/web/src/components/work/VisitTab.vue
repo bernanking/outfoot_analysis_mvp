@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { ConcernType } from "@outfoot/contracts";
-import { typeLabel, type PreviewConsultation } from "../../data/preview";
+import { typeLabel, visitRecordLabel, type PreviewConsultation } from "../../data/preview";
 import { scoreOptions, toeOptions } from "../../data/questionnairePreview";
 import { useWorkDraftStore } from "../../stores/workDraft";
 
@@ -25,11 +25,13 @@ const painRemaining = ["PV03 · 정적 관찰", "PV04 · 피부·압박 흔적",
 <template>
   <fieldset class="visit-form" :disabled="locked">
     <legend class="sr-only">방문상담 입력</legend>
-    <section class="surface-card form-stack" aria-labelledby="visit-type-title">
+    <section id="visit-type" class="surface-card form-stack" aria-labelledby="visit-type-title">
       <h2 id="visit-type-title">상담 유형 확인</h2>
       <dl class="detail-grid">
         <div><dt>환자 원선택</dt><dd data-testid="patient-types">{{ typeLabel(consultation.types) }}</dd></div>
         <div><dt>시술자 확인 유형</dt><dd data-testid="confirmed-types">{{ confirmed.length ? typeLabel(confirmed) : '미확인' }}</dd></div>
+        <!-- 저장된 기록의 상태입니다. 이 화면에서 바꾼 값은 저장 전까지 여기에 반영되지 않습니다. -->
+        <div><dt>저장된 방문 기록</dt><dd data-testid="visit-record">{{ visitRecordLabel(consultation) }}</dd></div>
       </dl>
       <fieldset class="choice-fieldset">
         <legend>시술자 확인 유형</legend>

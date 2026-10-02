@@ -3,7 +3,7 @@ import { computed, ref } from "vue";
 import { RouterLink } from "vue-router";
 import UiNotice from "../ui/UiNotice.vue";
 import UiStatusBadge from "../ui/UiStatusBadge.vue";
-import type { PreviewConsultation } from "../../data/preview";
+import { footprintNeed, type PreviewConsultation } from "../../data/preview";
 import { useWorkDraftStore } from "../../stores/workDraft";
 
 // 준비 상태 → 확인할 항목 → 가능한 다음 행동 순서로 보여주고, 내부 상태 코드와 버전 정보는 기술 정보로 접어 둡니다.
@@ -11,12 +11,25 @@ const props = defineProps<{ consultation: PreviewConsultation; base: string; edi
 const selectedRun = ref("NONE");
 const drafts = useWorkDraftStore();
 const draft = computed(() => drafts.drafts[props.consultation.id].analysis);
-const checks = computed(() => [
-  { label: "사전답변", value: props.consultation.questionnaire, ok: props.consultation.questionnaire === "제출 완료", to: `${props.base}/questionnaire`, action: "사전답변 보기" },
-  { label: "안전정보 확인", value: props.consultation.safety, ok: props.consultation.safety === "확인 완료" || props.consultation.safety === "없음", to: `${props.base}/visit#visit-safety`, action: "방문상담에서 확인" },
-  { label: "좌우 발도장", value: props.consultation.image, ok: props.consultation.image === "좌우 등록 예시", to: `${props.base}/media`, action: "사진·발도장으로" },
+// 확인할 항목은 준비 상태(state)로 나눕니다. READY는 갖춰짐, OPTIONAL은 선택 항목이라 누락이 아님, PENDING만 확인할 항목 수에 넣습니다.
+// 발도장 필요 여부는 사진·발도장 탭과 같은 시술자 확인 유형(환자 원선택 포함) 기준입니다. 새로운 실행·확정 차단 조건이 아닙니다.
+type CheckState = "READY" | "OPTIONAL" | "PENDING";
+interface ReadinessCheck { label: string; value: string; state: CheckState; readyLabel?: string; to: string; action: string }
+const footprintCheck = computed<ReadinessCheck>(() => {
+  const image = props.consultation.image;
+  const registered = image === "좌우 등록 예시";
+  const need = footprintNeed(drafts.drafts[props.consultation.id].confirmedTypes);
+  const media = { label: "좌우 발도장", to: `${props.base}/media`, action: "사진·발도장으로", readyLabel: "확인됨" };
+  if (need === "UNDECIDED") return { ...media, value: "필요 여부 미정 · 상담 유형 확인 전", state: "PENDING", to: `${props.base}/visit#visit-type`, action: "방문상담에서 유형 확인" };
+  if (need === "OPTIONAL") return { ...media, value: `발도장 선택 · ${image}`, state: registered ? "READY" : "OPTIONAL" };
+  return { ...media, value: `발도장 기본 필요 · ${image}`, state: registered ? "READY" : "PENDING" };
+});
+const checks = computed<ReadinessCheck[]>(() => [
+  { label: "사전답변", value: props.consultation.questionnaire, state: props.consultation.questionnaire === "제출 완료" ? "READY" : "PENDING", readyLabel: "제출됨", to: `${props.base}/questionnaire`, action: "사전답변 보기" },
+  { label: "안전정보 확인", value: props.consultation.safety, state: props.consultation.safety === "확인 완료" || props.consultation.safety === "없음" ? "READY" : "PENDING", readyLabel: "확인됨", to: `${props.base}/visit#visit-safety`, action: "방문상담에서 확인" },
+  footprintCheck.value,
 ]);
-const pending = computed(() => checks.value.filter((item) => !item.ok));
+const pending = computed(() => checks.value.filter((item) => item.state === "PENDING"));
 </script>
 
 <template>
@@ -25,7 +38,7 @@ const pending = computed(() => checks.value.filter((item) => !item.ok));
     <p>발도장 분석 방식은 실제 샘플 검증 전이라 아직 사용할 수 없습니다. 길이·압력·아치 지표나 점수는 만들지 않으며 현재 <strong>측정값 없음</strong> 상태입니다.</p>
     <h3>확인할 항목 {{ pending.length }}건</h3>
     <ul class="confirm-list">
-      <li v-for="item in checks" :key="item.label"><div><strong>{{ item.label }}</strong><small>{{ item.value }}</small></div><UiStatusBadge v-if="item.ok" label="확인됨" tone="success" /><RouterLink v-else class="text-link" :to="item.to">{{ item.action }}</RouterLink></li>
+      <li v-for="item in checks" :key="item.label" :data-check-state="item.state"><div><strong>{{ item.label }}</strong><small>{{ item.value }}</small></div><UiStatusBadge v-if="item.state === 'READY'" :label="item.readyLabel ?? '확인됨'" tone="success" /><UiStatusBadge v-else-if="item.state === 'OPTIONAL'" label="선택 항목" tone="neutral" /><RouterLink v-else class="text-link" :to="item.to">{{ item.action }}</RouterLink></li>
     </ul>
     <h3>가능한 다음 행동</h3>
     <ul class="check-list"><li>방문상담 기록과 시술자 보완은 분석 없이도 계속 작성할 수 있습니다.</li><li>의료기관 우선·보류 결론은 사유·안전 안내·확인 담당자를 기록해 종결할 수 있습니다.</li><li>일반 관리 확정에 필요한 조건은 O04·O05 결정 전입니다.</li></ul>

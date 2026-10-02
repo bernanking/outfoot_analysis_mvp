@@ -77,9 +77,10 @@ describe("R3 · discard and leave", () => {
 
     await wrapper.findAll(".work-actions button").find((button) => button.text() === "변경 취소")!.trigger("click");
     expect(saveStatus(wrapper)).toBe("저장할 변경 없음");
-    expect(field(wrapper, "오늘 가장 먼저 다룰 불편과 목표").element.value).toBe("");
+    // c-104는 저장된 방문 기록(합성 예시)이 있으므로 빈 값이 아니라 저장값으로 돌아갑니다.
+    expect(field(wrapper, "오늘 가장 먼저 다룰 불편과 목표").element.value).toBe("합성 예시 · 오늘 주호소");
     expect((wrapper.get('input[name="visit-change"][value="악화"]').element as HTMLInputElement).checked).toBe(false);
-    expect((wrapper.get('select[aria-labelledby="safety-C05-name safety-C05-value-label"]').element as HTMLSelectElement).value).toBe("미확인");
+    expect((wrapper.get('select[aria-labelledby="safety-C05-name safety-C05-value-label"]').element as HTMLSelectElement).value).toBe("없음");
     expect((wrapper.get('input[type="checkbox"][value="NAIL"]').element as HTMLInputElement).checked).toBe(true);
     expect((wrapper.get('input[type="checkbox"][value="두께"]').element as HTMLInputElement).checked).toBe(false);
     expect(wrapper.find('[placeholder="환자에게 전달할 안전 안내"]').exists()).toBe(false);

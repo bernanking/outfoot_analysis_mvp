@@ -98,7 +98,7 @@ const summaryOpen = ref(typeof window.matchMedia === "function" ? window.matchMe
           <div><dt>환자 선택 유형</dt><dd>{{ typeLabel(consultation.types) }}</dd></div>
           <div><dt>확인 유형</dt><dd>{{ confirmedTypes.length ? typeLabel(confirmedTypes) : '미확인' }}</dd></div>
           <div><dt>주호소</dt><dd>합성 상담 내용 예시</dd></div>
-          <div><dt>현재 불편 정도</dt><dd>미확인</dd></div>
+          <div><dt>현재 불편 정도</dt><dd>{{ consultation.visitRecord?.v04 ? `${consultation.visitRecord.v04} / 10 · 저장값 합성 예시` : '미확인' }}</dd></div>
           <div><dt>대표 부위</dt><dd>미확인</dd></div>
           <div><dt>주의신호</dt><dd>{{ consultation.safety }}</dd></div>
           <div><dt>이전 회차</dt><dd><RouterLink class="text-link" :to="`/patients/${consultation.patientId}#consultation-history`">{{ previousRounds ? `이전 ${previousRounds}회 이력 보기` : '이전 회차 없음 · 환자 상세' }}</RouterLink></dd></div>

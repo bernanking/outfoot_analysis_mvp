@@ -32,16 +32,18 @@ export function initialDraft(consultationId: string): WorkDraft {
   const item = consultationFor(consultationId);
   const patientTypes = item?.types ?? [];
   const confirmed = new Set<ConcernType>([...patientTypes, ...(item?.confirmedTypes ?? [])]);
+  // 초기값은 저장된 방문 기록(합성 예시)입니다. 기록이 없으면 빈 값·미확인으로 시작하고, 변경 취소도 이 값으로 돌아갑니다.
+  const record = item?.visitRecord;
   return {
     confirmedTypes: typeOrder.filter((type) => confirmed.has(type)),
     visit: {
-      v02: "", change: "", v04: "",
-      safety: Object.fromEntries(safetyQuestionIds.map((id) => [id, { value: "미확인", memo: "" }])),
-      v06: "", v07: "", shoeSize: "", pressure: "", v08: "",
+      v02: record?.v02 ?? "", change: record?.change ?? "", v04: record?.v04 ?? "",
+      safety: Object.fromEntries(safetyQuestionIds.map((id) => [id, { value: record?.safety[id] ?? "미확인", memo: "" }])),
+      v06: "", v07: record?.v07 ?? "", shoeSize: "", pressure: "", v08: "",
       nv01: "", nv02: "", nv03: [],
       pv01: "", pv02Now: "", pv02Max: "", pv07Left: "", pv07Right: "", pv07Unmeasured: false,
       v09Fact: "", v09Judgement: "",
-      decision: "", decisionReason: "", decisionSafety: "",
+      decision: record?.decision ?? "", decisionReason: record?.decisionReason ?? "", decisionSafety: record?.decisionSafety ?? "",
     },
     result: {
       conclusion: "", reason: "", safetyGuide: "", confirmer: "", careDirection: "",
