@@ -46,7 +46,12 @@ flowchart LR
 
 - 함수는 `deno.json` import map으로 `@outfoot/api-core`·`@outfoot/contracts`를 상대 경로로 읽고 `zod`를 `npm:zod@4.6.5`로 고정합니다. Deno lockfile은 끕니다(루트 npm lockfile 하나 원칙, Edge Runtime의 Deno 버전 차이).
 - 공용 코드는 `zod`와 웹 표준 API만 씁니다. Node 전용·Deno 전용 패키지를 공용 코드에 넣지 않습니다. 새 의존성을 공용 코드에 넣을 때는 Node(Vitest)와 Deno(`npm run functions:check`) 양쪽에서 확인합니다.
-- `supabase/functions` 밖 파일을 함수가 import하는 방식은 Deno 2.9.6 타입 검사·실행으로만 확인했습니다. Supabase Edge Runtime에서의 동작은 Docker가 준비되는 **T02 착수 시 `npm run functions:serve`로 먼저 확인**하고(완료 조건), 원격 번들·배포(`functions deploy`)는 T18에서 따로 확인합니다. 확인 전에는 `_shared` 복사 구조로 미리 바꾸지 않으며, 로컬 확인에서 실패하면 그때 대안(동기화 스크립트 등)을 정합니다.
+- `supabase/functions` 밖 파일 import는 2026-10-02 로컬 Supabase(OrbStack)에서 `npm run functions:serve`로 실제 Edge Runtime 실행을 확인했습니다(AT-40 로컬). CLI는 함수의 import를 따라가 실제로 쓰는 `packages/api-core/src`의 4개 파일과 `packages/contracts/src/index.ts`만 컨테이너의 같은 경로에 연결했고, 실행 로그는 `supabase-edge-runtime-1.77.1 (compatible with Deno v2.1.4)`였습니다. 그 전에는 Deno 타입 검사·실행(2.9.6, 이후 2.1.4)으로만 확인했습니다. 고정된 Supabase CLI 2.119.0은 Edge Runtime `v1.77.1`(소스 기준 Deno 2.1.4)을 쓰므로 `npm run functions:check`도 Deno 2.1.4로 검사합니다. CLI를 올리면 Edge Runtime의 Deno 버전을 확인해 함께 맞춥니다. 원격 번들·배포(`functions deploy`)는 T18에서 따로 확인합니다. `_shared` 복사 구조는 쓰지 않습니다.
+- 함수 앞 게이트웨이의 CORS(2026-10-02 재측정·문서 정정). 환경마다 근거가 다르므로 나눠 기록합니다.
+  - 로컬 Supabase CLI(Kong): CLI가 만든 설정의 `functions-v1` 경로에 `cors` 플러그인이 기본값으로 붙어, 함수가 정한 `Access-Control-Allow-Origin`을 `*`로 덮고 OPTIONS 사전 요청을 함수에 넘기지 않고 200으로 답합니다(실행 확인).
+  - 자체 호스팅 Docker 구성: 공식 저장소의 [kong.yml(커밋 3fc8af3, 2026-09-30)](https://github.com/supabase/supabase/blob/3fc8af387ec4dfb449510828a938e1f6e57a9575/docker/volumes/api/kong.yml)에도 같은 경로에 `cors` 플러그인이 있어 같은 동작이 예상되지만, 설정 파일을 읽은 근거일 뿐 실행하지 않았습니다. OUTFOOT는 자체 호스팅을 계획하지 않습니다.
+  - Supabase 호스팅 Edge Functions: [공식 문서](https://supabase.com/docs/guides/functions/cors)는 "브라우저에서 호출하려면 CORS 사전 요청을 처리해야 하고, `withSupabase`를 쓰지 않으면 헤더를 직접 추가"하라고 안내할 뿐, 게이트웨이가 CORS 헤더를 붙이는지는 밝히지 않습니다. 실제 동작은 **미확인**이며 T18(AT-40 원격)에서 확인합니다. 이전 기록의 "공식 문서상 호스팅 게이트웨이는 CORS 헤더를 붙이지 않는다"는 원문에 없는 추론이어서 정정했습니다.
+  - 함수 자체의 CORS는 같은 Supabase 네트워크에서 Edge Runtime에 직접 요청해 정책대로임을 확인했습니다(허용 출처 반사, 허용 출처 사전 요청 204, 비허용 출처 GET·OPTIONS 403). 비허용 출처의 실제 요청은 게이트웨이 경유에서도 함수가 403으로 거부하므로 데이터 보호 경계는 함수의 출처 검사와 이후 인증에 있습니다. 다만 게이트웨이가 `*`를 붙이는 환경에서는 브라우저가 그 403 응답(오류 형식만, 업무 데이터 없음)을 읽을 수 있습니다.
 
 ## Cloudflare 정적 제공
 
@@ -101,7 +106,7 @@ MVP 기본 방식(P21 구현 제안, T10A에서 구현·검증. 고객 확정 �
 
 로컬·스테이징·운영은 Supabase 프로젝트와 비밀값을 분리합니다. 환경변수 예시는 웹 공개값 `.env.example`(VITE_*), 함수 비밀값 `supabase/functions/.env.example`에 두고 실제 값은 Git에 넣지 않습니다. 함수에는 `SUPABASE_URL`·키·`SUPABASE_DB_URL`이 자동 주입되며 `SUPABASE_` 접두사 이름은 직접 만들 수 없습니다. 웹 빌드는 `scripts/check-web-bundle.mjs`로 번들과 `VITE_` 환경변수를 검사합니다. 형식이 알려진 비밀값(Supabase `sb_secret_` 키, role이 `service_role`인 JWT, `sk-` 형식 키, DB 접속 문자열, 개인 키)과 비밀값으로 보이는 `VITE_` 이름만 찾을 수 있고, 형식이 없는 값은 찾지 못합니다. 공개 키(`sb_publishable_`, role이 `anon`인 JWT)는 허용합니다. 타입 선언(`env.d.ts`)은 오타를 줄이는 장치일 뿐 유출 방지 장치가 아닙니다.
 
-로컬 Supabase(`npx supabase start`, `npm run functions:serve`)는 Docker가 필요합니다. 운영 배포 전에 Cloudflare·Supabase 계정·도메인 소유자, 요금제·월 예산, 데이터 리전·보관 요구, 복구 목표를 확인합니다(O08).
+로컬 Supabase(`npx supabase start`, `npm run functions:serve`)는 컨테이너 런타임(OrbStack·Docker Desktop·Rancher Desktop·Podman·Colima 중 하나)이 필요합니다. 실행 순서는 README를 따릅니다. 운영 배포 전에 Cloudflare·Supabase 계정·도메인 소유자, 요금제·월 예산, 데이터 리전·보관 요구, 복구 목표를 확인합니다(O08).
 
 ## 기술 게이트
 

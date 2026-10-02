@@ -223,7 +223,9 @@ web3 = 30
 
 [auth.email]
 # Allow/disallow new user signups via email to your project.
-enable_signup = false
+# OUTFOOT: false로 두면 로컬 Auth에서 이메일 제공자 자체가 꺼져 관리자가 만든 계정의 이메일·비밀번호 로그인도
+# 거부됩니다(2026-10-02 T02 확인, email_provider_disabled). 공개 가입 차단은 위 [auth] enable_signup = false가 맡습니다.
+enable_signup = true
 # If enabled, a user will be required to confirm any email change on both the old, and new email
 # addresses. If disabled, only the new email is required to confirm.
 double_confirm_changes = true

@@ -47,7 +47,7 @@
 | AT-37 | 확정본·감사 저장 실패 | 확정본 또는 감사 기록 저장을 실패시키면 상담 상태·확정본·감사가 모두 이전 상태로 남음 |
 | AT-38 | 중복 제출과 수동 재시도 | 같은 분석 요청 키의 중복 요청은 기존 작업 반환, `OUTCOME_UNKNOWN` 뒤 담당자 확인 재시도는 새 시도·`retryOf`·확인자 기록 |
 | AT-39 | 플랫폼 로그의 질문지 토큰 | 합성 토큰으로 조회·제출·실패 요청 후 API 게이트웨이·함수·DB·Storage 로그와 Cloudflare 요청 기록에서 토큰 문자열이 검색되지 않음. 검색되면 T07에서 전달 방식·보존·열람 권한 대응을 결정 |
-| AT-40 | 함수 실행환경 | 로컬 `functions serve`(T02 착수 시)에서 `supabase/functions` 밖 공용 코드를 import한 함수가 health를 응답. 원격 번들·배포(T18)에서 같은 확인 |
+| AT-40 | 함수 실행환경 | 로컬 `functions serve`(T02 착수 시)에서 `supabase/functions` 밖 공용 코드를 import한 함수가 health를 응답. 함수의 출처 검사(허용 출처 반사·사전 요청 204·비허용 403)는 함수 직접 호출로, 게이트웨이 경유 CORS는 환경별로 따로 기록(로컬 Kong은 `*`를 붙임). 원격 번들·배포와 호스팅 게이트웨이 경유 CORS는 T18에서 같은 확인 |
 
 ## 자동 테스트 최소선
 
@@ -65,7 +65,7 @@
 결과를 보고할 때 다음 단계를 나눠 적고, 실행하지 않은 단계를 통과로 쓰지 않습니다.
 
 1. 정적 검사·mock 테스트: 타입 검사(환경변수 타입 검사 파일 포함), 린트, Vitest(웹·계약·서버 코어), 스크립트 테스트(번들 비밀값 검사, ESLint 경계 허용·차단 사례), Deno 타입 검사, 웹 빌드·번들 비밀값 검사.
-2. 로컬 Supabase 통합: `npx supabase start`(Docker 필요), 마이그레이션·RLS·Auth·Storage·함수 로컬 실행.
+2. 로컬 Supabase 통합: `npx supabase start`(컨테이너 런타임 필요), 마이그레이션·RLS·Auth·Storage·함수 로컬 실행. DB는 `npm run db:test`(pgTAP)와 `npm run db:check-access`(Data API 직접 접근 거부), 함수는 `npm run functions:serve` 후 게이트웨이 요청으로 확인합니다. 별도 Deno 실행이나 mock 응답은 이 단계 통과로 보지 않습니다.
 3. 원격 Supabase·Cloudflare 스테이징: 별도 승인과 O08 이후.
 
 ## 분석 검수 게이트

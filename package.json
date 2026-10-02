@@ -18,9 +18,11 @@
     "lint": "eslint .",
     "test": "npm run test --workspaces --if-present && npm run test:scripts",
     "cf:preview": "npm run cf:preview --workspace @outfoot/web",
-    "functions:check": "cd supabase/functions/api && npx --yes deno@2.9.6 check index.ts",
+    "functions:check": "cd supabase/functions/api && npx --yes deno@2.1.4 check index.ts",
     "functions:serve": "supabase functions serve api --env-file supabase/functions/.env",
-    "test:scripts": "node --test scripts/check-web-bundle.test.mjs scripts/eslint-boundaries.test.mjs"
+    "test:scripts": "node --test scripts/check-web-bundle.test.mjs scripts/eslint-boundaries.test.mjs scripts/check-data-api-access.test.mjs",
+    "db:test": "supabase test db",
+    "db:check-access": "node scripts/check-data-api-access.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

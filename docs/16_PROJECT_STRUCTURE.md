@@ -24,6 +24,8 @@ outfoot_analysis_mvp/
 ├─ supabase/
 │  ├─ config.toml            # 로컬 Supabase 설정(공개가입 차단, Data API 자동 노출 해제 등)
 │  ├─ migrations/            # 테이블·인덱스·DB 함수·RLS·GRANT SQL(T02부터)
+│  ├─ seed.sql               # 로컬 합성 seed(원격 적용 금지)
+│  ├─ tests/database/        # pgTAP DB 검사(npm run db:test)
 │  └─ functions/
 │     ├─ .env.example        # 함수 비밀값 예시(실제 .env는 Git 제외)
 │     └─ api/                # Edge Function 진입점(Deno): index.ts, deno.json

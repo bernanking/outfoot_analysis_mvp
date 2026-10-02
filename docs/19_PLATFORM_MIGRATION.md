@@ -31,6 +31,8 @@
 | pg_cron | T10A(1분 주기 작업 회수) | 별도 서버 없이 지속 실행 | RDS PostgreSQL의 pg_cron 지원 여부를 이전 시 확인하거나 Node 스케줄러·워커로 대체 |
 | pg_net | T10A(cron에서 함수 호출) | DB에서 함수 HTTP 호출 | Node 워커가 DB 작업 테이블을 직접 폴링 |
 | Vault | T10A(작업 실행 키 보관) | cron 호출 키 비밀 보관 | AWS Secrets Manager 등 |
+| pgTAP·`supabase test db` | T02 DB 검사(`supabase/tests/database`) | RLS·권한·제약 회귀 검사 | pgTAP은 PostgreSQL 확장이므로 RDS 지원 여부를 이전 시 확인하고, 실행은 `pg_prove` 등 일반 도구로 대체 |
+| Data API(PostgREST) 접근 검사 스크립트 | T02(`scripts/check-data-api-access.mjs`) | Supabase Data API로 업무 테이블에 접근할 수 없음을 확인 | Data API가 없는 RDS에서는 불필요(DB 권한 검사는 pgTAP으로 유지) |
 | Edge Function 자동 주입 변수 | `SUPABASE_URL`, `SUPABASE_*_KEY(S)`, `SUPABASE_DB_URL` | 연결 정보 | 진입점에서 일반 환경변수로 대체(`EnvReader`) |
 
 ## 인증 이전 쟁점

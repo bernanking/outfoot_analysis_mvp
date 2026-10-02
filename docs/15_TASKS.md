@@ -7,12 +7,12 @@
 | T00 | 최신 결정·문서 정합성 확인, 기술 기준 기록 | 없음 | DONE 문서 v1.1 |
 | T01 | npm workspace, Vue·Workers API·shared 스캐폴드, lint·test·env 예시 | T00 | DONE 2026-09-22 |
 | T01A | 기술 전환 기반 정리(D25·D26): Cloudflare 정적 설정, Supabase 로컬 설정·환경변수 예시, Edge Function 골격, 런타임 중립 서버 코어, 웹 서비스 경계, Workers·D1·R2 의존성 정리, 이전 경계 문서 | T01 | DONE 2026-10-02(정적·mock·Deno 검증. 로컬 Supabase 기동은 Docker 부재로 미실행 → T02 착수 조건) |
-| T02 | Supabase PostgreSQL 마이그레이션: 기관·사용자(인증 사용자 매핑)·환자·상담 기본 스키마, RLS 기본 차단·GRANT, 합성 seed, 로컬 Supabase 기동 검증(2026-10-02 D1에서 변경) | T01A | TODO |
-| T03 | Supabase Auth 직원 로그인(아이디 매핑 P20·O13), 요청 인증·업무 사용자 매핑, 역할·기관 권한, 관리자 계정관리(Admin API), 비활성화·권한 변경 즉시 반영 | T02 | TODO |
+| T02 | Supabase PostgreSQL 마이그레이션: 기관·사용자(인증 사용자 매핑)·환자·상담 기본 스키마, RLS 기본 차단·GRANT, 합성 seed, 로컬 Supabase 기동 검증(2026-10-02 D1에서 변경) | T01A | DONE 2026-10-02(로컬 구현·검증 범위: AT-40 로컬, 마이그레이션 2개·합성 seed, RLS 기본 차단·Data API 역할 권한 회수, pgTAP 55·Data API 검사 105건. 원격 배포·호스팅 CORS(T18), 서버 DB 접근 방식과 업무 권한(T03 이후)은 별도 미완료) |
+| T03 | Supabase Auth 직원 로그인(아이디 매핑 P20·O13), 요청 인증·업무 사용자 매핑, 역할·기관 권한, 관리자 계정관리(Admin API), 비활성화·권한 변경 즉시 반영. 1단계·후속 단계로 나눠 진행(아래 완료 기준 T03 행) | T02 | TODO |
 | T04 | OUTFOOT 토큰·레이아웃·공통 UI, 로그인·오류 화면 | T01 | DONE 2026-09-23 |
 | T04A | 전체 정적 화면·역할별 메뉴·페이지 링크, 합성 데이터 상태 구현. 768~1279px 좌측 메뉴 축소, 시안 역할 Pinia 공유·관리자 경로 가드(`/403`) 포함 | T04 | DONE 2026-09-28 |
-| T04B | 클라이언트 화면 피드백 반영·화면 기획 확정 | T04A | IN_PROGRESS |
-| T05 | 환자 검색·등록·수정, 중복후보, 환자 상세·회차 | T02~04 | TODO |
+| T04B | 클라이언트 화면 피드백 반영·화면 기획 확정. 2026-10-02 D27로 통합 테스트 단계에 연기(사전 UX 정리·검토 반영은 기록 그대로 유지, 현재 화면은 구현 제안·고객 미확정). T17과 같은 통합 테스트 단계에서 함께 수행하며 T05~T16의 선행조건이 아님 | T04A·T05·T06·T07·T08·T09·T10·T10A·T13·T15·T16(선행), T17과 동시 | TODO(연기, D27) |
+| T05 | 환자 검색·등록·수정, 중복후보, 환자 상세·회차 | T02·T03·T04·T04A(T04B 아님, D27) | TODO |
 | T06 | 상담 생성·담당자·상태, 링크 발급·복사 | T03·T05 | TODO |
 | T07 | 버전된 고정 질문지, 분기·제출·중복방지, 모바일 UI | T06 | TODO |
 | T08 | 상담 작업 화면, 원답·확인값·주의신호·명시적 저장·충돌 | T07 | TODO |
@@ -25,21 +25,21 @@
 | T14 | 승인 자료로 AI 평가, 선택한 실제 AI 공급자 연결·사용량 | O04·O06·O07 | BLOCKED |
 | T15 | 최종본 개정(권한·입력 버전 비교·확정본·감사의 원자적 확정)·고객안내·브라우저 인쇄 | T13 | TODO |
 | T16 | 관리자 삭제·감사로그·운영 조회 | T03·T15 | TODO |
-| T17 | 접근성·보안·E2E·성능·실패복구와 문서 갱신 | T03~16 | TODO |
+| T17 | 접근성·보안·E2E·성능·실패복구와 문서 갱신. 통합 테스트 단계로 T04B 클라이언트 화면 피드백 반영과 함께 수행(D27) | T03·T05·T06·T07·T08·T09·T10·T10A·T13·T15·T16 | TODO |
 | T18 | Cloudflare 정적 배포·Supabase 스테이징·백업·관측·운영 인수(함수 외부 파일 import 배포 확인 포함) | O07·O08·T17 | BLOCKED |
 | T19 | AWS 이전(EC2·RDS·S3·Node.js), 인증 유지/전환 | O14 | BLOCKED |
 
 ## 권장 구현 순서
 
-`T01 → T04 → T04A → T04B → T02·T03 → T05~T09 → T10·T10A·T13 → T15·T16 → T17`로 진행합니다. T01A(기술 전환 기반)는 T04B 클라이언트 확인과 병행했습니다. T02·T03의 DB·서버 준비는 T04B 확인과 병행할 수 있지만, 화면의 실제 업무 연결은 T04B 화면 확정 후 기존 순서와 의존성을 따릅니다. T04A에서는 실제 기능 성공처럼 보이지 않는 합성 데이터로 전체 화면과 링크를 구현하고, T04B에서 클라이언트 피드백으로 화면을 확정한 뒤 저장·권한·분석 기능을 연결합니다. T11은 샘플이 오는 즉시 별도 실험으로 병행하되, 실제 공급자 T12를 나머지 플랫폼의 선행조건으로 만들지 않습니다.
+2026-10-02 D27부터 `T01 → T04 → T04A → T01A → T02·T03 → T05~T09 → T10·T10A·T13 → T15·T16 → T17 통합 테스트 + T04B 클라이언트 화면 피드백 반영`으로 진행합니다. T04A의 정적 화면과 T04B 사전 UX 정리 결과(P13~P16 등)는 고객 확정본이 아니라 구현 제안이며, 기능은 이 화면을 기준으로 연결합니다. 클라이언트 피드백은 주요 기능을 연결한 뒤 통합 테스트 단계에서 받아 화면·기능에 함께 반영하므로, 그때 화면과 연결 코드의 수정이 생길 수 있습니다. *2026-09-22~10-01 기준(대체됨)*: T04B에서 클라이언트 피드백으로 화면을 확정한 뒤 저장·권한·분석 기능을 연결. T11은 샘플이 오는 즉시 별도 실험으로 병행하되, 실제 공급자 T12를 나머지 플랫폼의 선행조건으로 만들지 않습니다.
 
 ## 후속 기술 작업 완료 기준 (2026-10-02 정리)
 
 | ID | 범위 | 의존 | 완료 기준 |
 | --- | --- | --- | --- |
-| T02 DB·RLS | **착수 시 먼저** 로컬 `supabase start`와 `npm run functions:serve`로 Edge Runtime에서 함수 실행·`supabase/functions` 밖 공용 코드 import 확인(AT-40 로컬). 이후 기관·업무 사용자(`authUserId` 매핑)·환자·상담·회차·유형 테이블, 인덱스, `version` 열, RLS 활성화·기본 차단, 필요한 GRANT만, 합성 seed | T01A, Docker 로컬 Supabase | AT-40 로컬 통과(실패 시 대안 결정 기록), `supabase db reset`으로 빈 DB에 적용, anon·authenticated 키로 Data API 직접 조회·변경 거부(AT-26 일부). `auto_expose_new_tables = false`는 새 테이블 자동 노출만 막는 설정이므로 RLS·GRANT는 이 작업의 테스트로 따로 확인. 마이그레이션 문서화, Supabase 전용 기능 사용 시 [이전 문서](19_PLATFORM_MIGRATION.md) 갱신 |
-| T03 인증 | 아이디 매핑 로그인, `/me`, `StaffAuthenticator` 구현(토큰 검증 + 업무 DB 현재 상태 조회), 관리자 계정 생성·비활성화(차단·세션 정리)·역할 변경(차단 없이 현재 권한 반영)·비밀번호 초기화(Admin API, 관리자 권한 명시 검사), ban의 세션·갱신 토큰 효과 확인 | T02 | AT-01·23·24·25 로컬 통과, `verify_jwt = false` 상태에서 직원 경로 중 인증 검사가 없는 경로가 없음을 테스트, 업무 DB에 비밀번호 해시 없음, 웹 번들에 secret 키 없음, O13 결정 또는 제안 유지 기록 |
-| T05~T08 업무 API | 환자·상담·질문지·방문상담 API와 화면 연결, 낙관적 잠금, 공개 질문지 토큰 경로 분리·해시 저장·만료·폐기·중복 제출, 토큰 전달 방식 결정 | T03, T04B 화면 확정 | AT-02~09·19 로컬 통과, 다른 기관 접근 거부, 플랫폼 로그 토큰 검증(AT-39) 로컬 수행·스테이징은 T18 |
+| T02 DB·RLS | (2026-10-02 로컬 구현·검증 완료. 아래 "T02 1단계 재개", "T02 2단계", "T02 검토 보완", "T02 재검토 잔여 보완과 완료 정리" 기록) **착수 시 먼저** 로컬 `supabase start`와 `npm run functions:serve`로 Edge Runtime에서 함수 실행·`supabase/functions` 밖 공용 코드 import 확인(AT-40 로컬). 이후 기관·업무 사용자(`authUserId` 매핑)·환자·상담·회차·유형 테이블, 인덱스, `version` 열, RLS 활성화·기본 차단, 필요한 GRANT만, 합성 seed | T01A, Docker 로컬 Supabase | AT-40 로컬 통과(실패 시 대안 결정 기록), 빈 DB에 마이그레이션·seed 적용(`supabase db reset`, 또는 기존 로컬 데이터를 보존해야 할 때 같은 Postgres의 일회용 빈 데이터베이스에 마이그레이션을 차례로 적용한 뒤 seed를 넣고 지우는 방식도 허용. 실제로는 첫 마이그레이션을 `db reset`으로, 후속 마이그레이션까지 포함한 전체를 일회용 빈 데이터베이스로 확인 — "T02 검토 보완"·"T02 재검토 잔여 보완과 완료 정리" 기록), anon·authenticated 키로 Data API 직접 조회·변경 거부(AT-26 일부). `auto_expose_new_tables = false`는 새 테이블 자동 노출만 막는 설정이므로 RLS·GRANT는 이 작업의 테스트로 따로 확인. 마이그레이션 문서화, Supabase 전용 기능 사용 시 [이전 문서](19_PLATFORM_MIGRATION.md) 갱신 |
+| T03 인증 | 단계 구분(2026-10-03): **1단계** = 서버 DB 접근 방식 선택, 직원 로그인, `StaffAuthenticator`, `/me`, 웹 인증 연결. **후속 단계** = 관리자 계정관리(생성·비활성화·역할 변경·비밀번호 초기화)와 ban·세션 폐기 효과 검증. DB 접근 방식과 O13은 1단계에서 근거와 함께 정하며 지금은 미정. 아이디 매핑 로그인, `/me`, `StaffAuthenticator` 구현(토큰 검증 + 업무 DB 현재 상태 조회), 관리자 계정 생성·비활성화(차단·세션 정리)·역할 변경(차단 없이 현재 권한 반영)·비밀번호 초기화(Admin API, 관리자 권한 명시 검사), ban의 세션·갱신 토큰 효과 확인 | T02 | AT-01·23·24·25 로컬 통과, `verify_jwt = false` 상태에서 직원 경로 중 인증 검사가 없는 경로가 없음을 테스트, 업무 DB에 비밀번호 해시 없음, 웹 번들에 secret 키 없음, O13 결정 또는 제안 유지 기록 |
+| T05~T08 업무 API | 환자·상담·질문지·방문상담 API와 화면 연결(현재 정적 화면 = 구현 제안 기준, D27), 낙관적 잠금, 공개 질문지 토큰 경로 분리·해시 저장·만료·폐기·중복 제출, 토큰 전달 방식 결정 | T02·T03(T04B는 선행조건 아님, T17과 함께 통합 테스트 단계) | AT-02~09·19 로컬 통과, 다른 기관 접근 거부, 플랫폼 로그 토큰 검증(AT-39) 로컬 수행·스테이징은 T18 |
 | T09 파일 | 비공개 버킷·버킷 크기·형식 제한, 서명 업로드·조회 URL 발급(권한 확인 후, 저장 안 함), 완료 검증, `StoredObjectRef` 메타데이터 | T03·T08 | AT-10·11·27 로컬 통과 |
 | T10·T10A 분석 작업 | 분석 요청·조회 분리, 작업 테이블·선점 DB 함수·임대 회수·외부 전송 단계(`dispatchState`) 기록·재시도 상한(회수 포함)·`OUTCOME_UNKNOWN`·수동 재시도 기록, pg_cron 호출 경로와 내부 작업 경로 인증, 미구성·측정불가 구분 | T02·T09 | AT-12·16·28·29·31~33·38 로컬 통과(합성·mock 공급자 호출 수로 확인), "정확히 한 번" 표현 없음 |
 | T13·T15 AI·확정 | mock AI 실행 이력·오래됨, 원자적 최종확정 DB 함수(잠금·버전 비교·중복 방지·트랜잭션 내 권한 재확인 방식은 이 작업에서 정하고 검증) | T10A | AT-14·15·17·18·30·34~37 로컬 통과. 실제 AI 연결은 T14(O04·O06·O07) |
@@ -246,3 +246,107 @@
 - 회귀 확인: 판정을 3차의 이름 검색 방식으로 되돌리면 새 테스트가 실패(1건), 지역 판정을 끄면(항상 전역) 허용 사례가 실패(2건)하는 것을 확인한 뒤 원복했습니다.
 - 검증: `npm run test:scripts`(13개 통과: 비밀값 검사 6·경계 7), `npm run lint`(종료 0), `git diff --check` 통과. ESLint 설정과 검사 테스트만 바뀌어 typecheck·workspace 테스트·웹 빌드·Deno·Supabase 검증은 이번에 다시 실행하지 않았습니다(마지막 실행은 2차·3차 기록).
 - 남은 한계(의도적으로 검사하지 않음): 별칭 변수(`const g = globalThis; g.process`), 계산된 속성명(`globalThis[name]`, 대괄호 안 템플릿 문자열 포함), 세 겹 이상 단언, `eval`·`Function`, 웹의 문자열 조합·표현식이 든 동적 import 경로. 코드에 `declare const window: …`처럼 값 선언을 두면 그 선언으로 해석되므로 지역으로 취급합니다(기존 정책, 이번에 확대하지 않음). 판정은 typescript-eslint 스코프 분석의 참조 해석에 의존하므로 파서 버전이 바뀌면 이 회귀 테스트로 다시 확인합니다.
+
+## T02 1단계 — 로컬 Supabase·Edge Runtime 검증 · 2026-10-02 (중단: 컨테이너 런타임 없음)
+
+- 범위: AT-40 로컬 검증(실제 Supabase Edge Runtime에서 함수 실행과 `supabase/functions` 밖 공용 코드 import 확인). DB 스키마·업무 마이그레이션·인증·Storage·화면 연결과 원격 자원은 포함하지 않았습니다. D25·D26 확정, P17~P22 제안, O13·O14 보류, T04B `IN_PROGRESS`는 그대로입니다.
+- 실행환경 확인(사실): macOS 26.7(arm64, RAM 16GB, CPU 10, 디스크 여유 약 333GB), Node.js 24.15.0, npm 11.12.1, 프로젝트 고정 Supabase CLI 2.119.0. `docker`·`podman`·`colima`·`orbctl`·`nerdctl`·`limactl` 명령, Docker.app·OrbStack.app·Podman Desktop·Rancher Desktop 앱, `/var/run/docker.sock`, `DOCKER_HOST`가 모두 없고 Homebrew도 없습니다. Supabase 기본 포트(54321~54324, 54327, 8083)는 비어 있어 기존 로컬 Supabase·컨테이너 충돌은 없습니다.
+- 결과: 로컬 Supabase 기동과 `npm run functions:serve`는 컨테이너 런타임이 필요해 **실행하지 못했습니다. AT-40 로컬은 미통과(미실행)**입니다. 시스템 도구는 설치하지 않았습니다(사용자 조치 필요). 별도 Deno 실행 결과를 AT-40 통과로 보지 않습니다.
+- 정적으로 확인한 실행환경: 고정 CLI 2.119.0 실행 파일에 포함된 이미지 태그로 Edge Runtime이 `supabase/edge-runtime:v1.77.1`임을 확인했고, 그 저장소 소스(`deno/Cargo.toml`)는 Deno 2.1.4입니다(실행으로 관측한 값은 아님). 그동안 함수 검사에 쓴 Deno 2.9.6과 차이가 있어 보조 확인을 했습니다.
+- 보조 확인(AT-40 아님): denoland 공식 npm 패키지 `deno@2.1.4`(TypeScript 5.6.2)로 `supabase/functions/api/index.ts` 타입 검사 통과(외부 `packages/api-core`·`packages/contracts`와 `npm:zod@4.6.5` import map 해석 포함, lockfile 미생성). 같은 버전으로 실행해 `GET /api/v1/health` 200(통합 상태 모두 `NOT_CONNECTED`, AI `mock`), `/functions/v1/api/v1/health` 형태 200, 허용 출처 사전 요청 204·비허용 출처 403, `AI_MODE` 누락 시 허용 출처에 CORS 헤더가 있는 `CONFIG_INVALID` 500과 변수 이름만 남는 로그를 확인했습니다. 이는 Deno 런타임 확인이며 DB·Auth·Storage 연동 성공이 아닙니다.
+- 외부 파일 bind mount 이슈(2026-10-02 Codex 검토 반영으로 정정, 같은 날 확인): 처음 기록에서 [supabase/supabase#50088](https://github.com/supabase/supabase/issues/50088)을 "열림"으로 적은 것은 틀렸습니다.
+  - 과거 문제: CLI 2.116.0에서 함수가 import하는 외부 로컬 파일의 bind가 부모·자식으로 겹치면 컨테이너 준비(`docker cp`)가 실패했습니다.
+  - 상위 프로젝트 수정: 이슈는 닫혔고, 수정 [supabase/cli#6505](https://github.com/supabase/cli/pull/6505)는 2026-09-09 `develop`에 병합됐습니다. 고정 버전 태그의 [serve.ts(v2.119.0)](https://github.com/supabase/cli/blob/v2.119.0/apps/cli/src/shared/functions/serve.ts) 1822행에 `pruneRedundantDockerBinds(aggregatedBinds)` 호출이, [deploy.ts(v2.119.0)](https://github.com/supabase/cli/blob/v2.119.0/apps/cli/src/shared/functions/deploy.ts) 331행에 함수 정의가 있습니다. 설치된 CLI 실행 파일에서는 이 이름이 문자열로 보이지 않아(빌드 시 이름 축약 추정) 실행 파일이 아닌 소스 태그 기준 확인입니다.
+  - OUTFOOT 상태: 이 프로젝트에서 컨테이너 실행과 `supabase/functions` 밖 공용 코드 import는 **아직 검증하지 못했습니다.** 상위 수정 반영은 AT-40 통과를 뜻하지 않습니다. 이 이슈만을 이유로 CLI 버전을 바꾸거나 `_shared` 복사 구조를 도입하지 않으며, 실제 실행에서 실패하면 그때 원인을 재현하고 가장 작은 대안을 비교합니다.
+- 일치 점검: 서버 코드가 읽는 `APP_ENV`·`AI_MODE`·`ALLOWED_ORIGINS`와 `supabase/functions/.env.example`, 웹 코드의 `VITE_API_BASE_URL`·`VITE_APP_NAME`과 `.env.example`, 기준 주소 `/functions/v1/api/v1`(README·`.env.example`·API 계약)과 코드의 `/api/v1` 처리, `[functions.api] verify_jwt = false`, `functions:serve` 스크립트가 서로 맞습니다.
+- 변경: `package.json`의 `functions:check`를 Edge Runtime과 같은 Deno 2.1.4로 바꿨습니다(프로젝트 의존성 아님, npx 실행). README 로컬 실행 안내(지원 컨테이너 런타임, 실행·종료 순서, `status` 출력의 키 주의(검토 반영으로 `start` 출력까지 확대), `stop`은 데이터 유지·`--no-backup`은 삭제), 08(Deno 버전 근거와 CLI 업그레이드 시 갱신), 14(로컬 통합 단계 설명)를 고쳤습니다. Git 제외 로컬 파일 `supabase/functions/.env`를 예시에서 만들었습니다(합성 값, 비밀값 없음, `.gitignore`의 `.env`로 제외 확인).
+- 검증: `npm run functions:check`(Deno 2.1.4) 통과, `git diff --check` 통과. 코드 변경이 없어 typecheck·lint·workspace 테스트·웹 빌드는 다시 실행하지 않았습니다(마지막 전체 실행은 T01A 커밋 직전, 통과).
+- 남은 프로세스: 보조 확인에 띄운 Deno 서버는 모두 종료했습니다. 컨테이너는 만들지 않았습니다.
+- 재개 조건(사용자 조치): 컨테이너 런타임 하나(공식 문서 기준 macOS 권장 OrbStack, 또는 Docker Desktop·Rancher Desktop·Podman·Colima) 설치·실행 → `docker info` 확인 → README의 터미널별 순서대로 `npx supabase start`, `npm run functions:serve`, health 요청. 첫 기동 시 여러 이미지를 내려받습니다. 통과하면 AT-40 로컬을 기록하고 T02 DB·RLS로 넘어갑니다. 원격 번들·배포 확인은 T18입니다.
+- AT-40 로컬 성공 판정(재개 시 기준): ① `npx supabase start`와 `npm run functions:serve`가 오류 없이 기동하고 함수 실행 로그에 import·bind 오류가 없음 ② 로컬 게이트웨이 경유 `GET http://127.0.0.1:54321/functions/v1/api/v1/health`가 200이고 본문이 공용 계약(`dataEnvelope(healthResponseSchema)`)을 만족하며 `runtime`이 `supabase-edge`, DB·Auth·Storage가 `NOT_CONNECTED`, AI가 `mock` ③ 허용 출처(`Origin: http://127.0.0.1:5173`) 요청에 같은 출처의 CORS 헤더, 비허용 출처는 403 ④ 함수 로그에 경로 이름만 남음. ①~④는 함수 실행 확인일 뿐 DB·Auth·Storage 업무 연동 성공이 아니며, 검증 기록에는 키·DB 접속 문자열 대신 상태 코드와 연결 상태 값만 남깁니다.
+- 검토 반영(2026-10-02): Codex 검토에 따라 위 bind mount 이슈 기록을 정정하고, README의 출력 주의를 `start`·`status` 모두로 넓히고 터미널별 실행 순서·`functions:serve` 종료(Ctrl+C)·데이터 보존 구분을 분리했습니다. 문서만 바꿨으며 `package.json`(CLI 2.119.0, `functions:check` Deno 2.1.4)·코드·설정은 그대로입니다. AT-40 로컬은 미실행, T02 `BLOCKED`, T04B `IN_PROGRESS`를 유지합니다.
+
+### T02 1단계 재개 시도 · 2026-10-02 (여전히 실행 불가)
+
+- 확인: `docker`·`podman`·`colima`·`orbctl`·`nerdctl`·`limactl` 명령, `/usr/local/bin`·`/opt/homebrew/bin`·`~/.orbstack`·`~/.rd` 등 일반 설치 위치, Docker·OrbStack·Podman Desktop·Rancher Desktop 앱(앱 폴더·Spotlight 번들 ID 검색), 알려진 docker 소켓, `DOCKER_HOST`가 모두 없습니다. Supabase 기본 포트는 비어 있습니다. 컨테이너 런타임이 아직 설치되지 않았습니다.
+- 실행 시도(고정 CLI 2.119.0): `npx supabase start`는 종료 코드 1, `DockerLifecycleInspectError`(docker·podman 명령 없음)로 컨테이너 생성 전에 멈췄습니다. `npm run functions:serve`도 `ServeLocalDbInspectError`(같은 원인)로 스스로 종료했고, `GET http://127.0.0.1:54321/functions/v1/api/v1/health`는 연결되지 않았습니다(응답 없음). 두 출력에 자격증명 형식 문자열은 없었고 임시 출력 파일은 지웠습니다.
+- 판단: 실패 단계는 로컬 Supabase 기동 이전(실행환경)이며 설정·import map·외부 파일 bind 문제로 볼 근거는 없습니다. 과거 #50088과도 관계없습니다. 실제 실행을 대신하는 코드나 설정 변경은 하지 않았습니다.
+- AT-40 로컬: A(기동·외부 import)·B(health 계약)·C(CORS)·D(애플리케이션 로그) 모두 **미실행**. 실제로 관측한 Edge Runtime 이미지·버전은 없습니다(소스 기준 `supabase/edge-runtime:v1.77.1`, Deno 2.1.4는 앞 기록 그대로).
+- 변경: 이 기록과 T02 상태 표기의 재확인 날짜만 바꿨습니다. 코드·설정·`package.json`·로컬 환경 파일(`supabase/functions/.env`)은 그대로입니다. 생성된 컨테이너·볼륨·이미지는 없고 남은 프로세스도 없습니다.
+- 상태: T02 `BLOCKED` 유지, T04B `IN_PROGRESS` 유지, 원격 번들·배포 확인은 T18.
+- 필요한 사용자 조치: 컨테이너 런타임 하나(공식 문서 기준 macOS 권장 OrbStack, 또는 Docker Desktop·Rancher Desktop·Podman·Colima)를 설치하고 실행한 뒤 터미널에서 `docker info`가 성공하는지 확인해 주세요. 설치·라이선스 동의·시스템 권한 허용은 사용자가 직접 해야 합니다.
+
+## 개발 순서 변경 — T04B 연기(D27) · 2026-10-02
+
+- 근거: 2026-10-02 사용자 결정. T04B 클라이언트 화면 피드백은 지금 진행하지 않고, 주요 기능 개발을 마친 뒤 통합 테스트 단계에서 클라이언트 피드백을 받아 함께 반영합니다. 현재 정적 화면과 P13~P16 등 T04B 사전 UX 정리 결과는 고객 확정본이 아닌 구현 제안이며, 기능은 이 화면을 기준으로 연결합니다.
+- 반영: 02(D27 추가, D24에 순서 변경 표시, 변경 기록), 15(T04B를 `TODO(연기, D27)`로, 의존성을 주요 기능 연결·T17 통합 테스트로, 권장 순서와 T05~T08 선행조건에서 "T04B 화면 확정" 제거), README(상태·요청 예시). 05·07·18의 "T04B 제안" 표기는 각 제안이 나온 단계를 적은 이력이라 그대로 둡니다.
+
+### T02 1단계 재개 — 컨테이너 런타임 준비와 AT-40 로컬 통과 · 2026-10-02
+
+- 컨테이너 런타임: 사용자 요청에 따라 Supabase 공식 문서의 macOS 권장 런타임인 OrbStack을 설치했습니다. 공식 경로(`orbstack.dev/download/stable/latest/arm64`)에서 v2.2.3 이미지를 받아 체크섬·코드 서명(`Developer ID Application: Orbital Labs, LLC (HUAQ24HBR6)`)·Apple 공증·Gatekeeper를 확인한 뒤 `/Applications`에 복사하고 실행했습니다. 별도의 관리자 비밀번호 입력 없이 엔진이 올라왔고, OrbStack이 `/usr/local/bin/docker` 연결과 `~/.zprofile`의 셸 연동 한 줄을 추가했습니다. `docker info`: 서버 29.4.0, OrbStack, aarch64, 기존 컨테이너·볼륨 0. OrbStack 라이선스는 "개인 사용 무료, 상업적 사용은 별도 요금제"이므로 사용 형태는 사용자가 확인해야 합니다.
+- 기동: `npx supabase start` 성공(컨테이너 12개). 실제 실행 이미지 `public.ecr.aws/supabase/edge-runtime:v1.77.1`, `postgres:17.11.0.002`, `gotrue:v2.197.0` 등. `npm run functions:serve` 로그에 `Using supabase-edge-runtime-1.77.1 (compatible with Deno v2.1.4)`가 나와 소스로 확인했던 값과 실행 관측값이 일치합니다. 시작 출력의 자격증명은 화면·문서에 남기지 않고 임시 파일만 쓴 뒤 지웠습니다.
+- AT-40 로컬:
+  - A 기동·외부 import: 통과. CLI가 함수의 import를 따라 `packages/api-core/src`의 `index.ts`·`app.ts`·`config.ts`·`ports.ts`와 `packages/contracts/src/index.ts`만 컨테이너에 같은 경로로 연결했고(테스트 파일 제외), 실행 로그에 import·bind 오류가 없습니다.
+  - B health: 통과. `GET http://127.0.0.1:54321/functions/v1/api/v1/health` 200, `{ data }` 형태, `runtime` `supabase-edge`, DB·Auth·Storage `NOT_CONNECTED`, AI `mock`, `cache-control: no-store`, `x-request-id`.
+  - C CORS: 함수 단계 통과, 로컬 게이트웨이 경유는 기준과 다름(예외 기록). 같은 Supabase 네트워크에서 일회용 `curlimages/curl:8.16.0` 컨테이너로 Edge Runtime에 직접 요청하면 허용 출처 GET 200·같은 출처 헤더·`Vary: Origin`, 허용 출처 OPTIONS 204(함수의 허용 메서드·헤더), 비허용 출처 GET·OPTIONS 403, CORS 헤더 없음. 게이트웨이(`127.0.0.1:54321`) 경유 시에는 CLI가 만든 로컬 Kong 설정의 `functions-v1` 경로 `cors` 플러그인이 `Access-Control-Allow-Origin: *`로 덮고 OPTIONS를 함수 전에 200으로 답합니다. 비허용 출처의 실제 요청은 게이트웨이 경유에서도 함수가 403으로 거부합니다. *(2026-10-02 검토 보완에서 정정: 처음 적은 "공식 문서상 호스팅 게이트웨이는 CORS 헤더를 붙이지 않으므로"는 공식 문서 원문에 없는 추론이었습니다. 호스팅 게이트웨이 동작은 미확인이며 T18에서 확인합니다. 아래 검토 보완 기록 참고.)* 검사 조건은 완화하지 않았습니다.
+  - D 애플리케이션 로그: 통과. 합성 토큰 경로·쿼리·Authorization·요청 본문으로 요청한 뒤 함수 로그를 검색해 원문 0건, api-core 로그에는 `route`(경로 이름)·상태·코드만 있음. 플랫폼 전체 로그는 AT-39 범위입니다.
+- 판단: A·B·D 통과, C는 함수 동작이 정책대로이고 차이가 로컬 게이트웨이 설정에서 오며 DB 작업과 무관하므로 AT-40 로컬을 통과(C 예외 기록)로 보고 T02 DB 단계로 진행했습니다. 근거와 남은 검증은 아래 검토 보완 기록에 정리했습니다.
+
+## T02 2단계 — DB 기본 구조·RLS·권한·합성 seed · 2026-10-02
+
+- 범위: 기관·업무 사용자(인증 사용자 매핑)·환자·상담·상담 유형 기본 구조, RLS 기본 차단, Data API 역할 권한 회수, 합성 seed, DB 검사. 인증 연결(T03)·화면 연결·서버 DB 접근 구현·질문지·파일·분석은 하지 않았습니다. 원격 자원·배포·유료 호출 없음.
+- 구현: `supabase/migrations/20261002091646_t02_core_schema.sql`, `supabase/seed.sql`, `supabase/tests/database/t02_core_schema.test.sql`, `scripts/check-data-api-access.mjs`, `package.json`의 `db:test`·`db:check-access`. 세부 설계는 [데이터 모델의 T02 구현](09_DATA_MODEL.md). `supabase/migrations/.gitkeep`은 실제 마이그레이션이 생겨 지웠습니다(CLI가 형식이 맞지 않는 파일로 건너뛰던 대상).
+- 구현 제안(고객 확정 아님): 상담 유형의 출처 구분 열(`PATIENT_SELECTED`·`PRACTITIONER_CONFIRMED`), 기관 경계 복합 외래키, 삭제되지 않은 상담 사이에서만 회차 유일, 로그인 아이디 전역 유일·정규화 검사. 결정을 미룬 것: 회차 재사용(T06), 전화번호 암호화(T05), 성별 허용값(O03·T05), 로그인 아이디 형식(O13), 서버 DB 접근 방식(T03).
+- 적용: 로컬 DB의 `public` 테이블 0개·인증 사용자 0명(이 작업에서 만든 이 프로젝트 전용 DB)을 확인한 뒤 T02 완료 기준대로 `npx supabase db reset`으로 빈 DB에 마이그레이션·seed를 적용했습니다(성공).
+- 설정 결함 수정: T01A에서 넣은 `[auth.email] enable_signup = false`가 로컬 Auth의 이메일 제공자 자체를 꺼서, 관리자가 만든 계정의 로그인이 `422 email_provider_disabled`로 거부되는 것을 재현했습니다. 공개 가입 차단은 전역 `[auth] enable_signup = false`가 맡으므로 `[auth.email] enable_signup = true`로 되돌렸습니다. 기본 `supabase stop`(데이터 보존, seed 유지 확인) 후 다시 기동해 공개 가입은 `422 signup_disabled`, 관리자가 만든 `.test` 도메인 계정 로그인은 200임을 확인했습니다(합성 사용자는 삭제).
+- 검증(로컬 Supabase 통합):
+  - `npm run db:test`(pgTAP 30개) 통과. 일부러 `anon`에 `patients` 조회 권한을 주면 9·12번, `consultations`의 RLS를 끄면 7번 검사가 실패하는 것을 확인한 뒤 원복했습니다.
+  - `npm run db:check-access` 통과: 다섯 테이블 × 조회·추가·수정·삭제 × 다섯 역할(anon 레거시·publishable, authenticated 로그인 사용자, service_role 레거시·secret) 100건이 모두 `42501`(권한 없음)로 거부, 트리거 함수 RPC 5건은 노출되지 않음(404). 첫 실행에서 `consultation_concern_types` 수정 요청이 없는 열(`updated_at`) 때문에 권한 검사 전에 `PGRST204`로 끝난 5건을 발견해, 있는 열로 바꾸고 이런 형식 오류를 실패로 보도록 고친 뒤 다시 통과했습니다. 일부러 `anon`에 조회 권한을 주면 스크립트가 실패(빈 결과 200도 노출로 판단)하는 것을 확인하고 원복했습니다. 출력에 자격증명 형식 문자열은 0줄이며 데이터·인증 사용자 수는 실행 전후 같습니다.
+- 검증(정적·mock): `npm run typecheck`, `npm run lint`, `npm test`(웹 128·서버 코어 9·계약 3·스크립트 13), `npm run build`(번들 비밀값 검사 포함), `npm run functions:check`(Deno 2.1.4), `git diff --check` 통과.
+- 미검증: 원격 Supabase·Cloudflare(T18), 호스팅 게이트웨이의 CORS(AT-40 원격), 플랫폼 로그의 토큰(AT-39), 인증 연결과 업무 API 권한(T03 이후), ban의 세션 효과(T03).
+- 정리: 이번 작업에서 띄운 `functions:serve`는 종료했습니다. 로컬 Supabase는 마지막에 기본 `npx supabase stop`(데이터 보존)으로 멈추며, OrbStack 앱과 프로젝트 볼륨·이미지는 남겨 둡니다.
+- 상태: T02 `IN_PROGRESS`(구현 완료, Codex 검토 대기), T04B `TODO(연기, D27)`. 다음은 검토 반영 후 T03(직원 로그인·업무 사용자 매핑·서버 DB 접근 방식 결정)입니다.
+
+## T02 검토 보완 — 스키마·검사·문서 정합성 · 2026-10-02
+
+- 범위: Codex의 T02 검토 의견 반영. 스키마·DB 검사·Data API 검사 스크립트·문서만 바꿨고 T03 인증이나 새 업무 기능은 하지 않았습니다. 앞선 마이그레이션은 로컬 DB에 적용돼 있어 후속 마이그레이션 `20261002093918_t02_review_constraints.sql`로 바꿨고, `npx supabase migration up`(데이터 유지)으로 적용했습니다. `db reset`·작업 트리 초기화·원격 작업·커밋은 하지 않았습니다.
+- 1 상담 유형 기록자의 기관 경계(재현·수정): 기관 1 상담에 기관 2 직원을 `recorded_by`로 넣는 것이 성공함을 롤백 트랜잭션에서 재현했습니다. `consultation_concern_types`에 `organization_id`를 더하고(기존 8행은 상담에서 채운 뒤 NOT NULL), 상담·기록자를 (기관, ID) 복합 외래키로 바꿨습니다(상담 쪽 `unique (organization_id, id)` 추가). 시술자 확인 유형은 확인자 필수, 환자 원선택은 기록자 비움 허용(구현 제안, 문서상 확인값에는 확인자를 남김 — docs/09 QuestionnaireConfirmation `confirmedBy`, docs/18 정정 시 확인자). 같은 기관 허용·다른 기관 거부·상담과 다른 기관 ID 거부·확인자 없는 확인 유형 거부를 pgTAP에 넣었습니다.
+- 2 논리삭제 제약(재현·수정): 사유가 NULL이면 CHECK 식이 NULL이 되어 통과하는 문제를 재현했고, 추가로 탭·줄바꿈만, 전각 공백(U+3000)만 있는 사유도 통과하는 것을 찾았습니다(`btrim`은 일반 공백만 제거). 사유는 `is not null`이면서 공백류(일반·탭·줄바꿈·NBSP·U+2000~200B·U+2028/2029/202F/205F·U+3000·U+FEFF)가 아닌 글자를 포함해야 하도록 바꿨습니다. 빈 문자열·일반 공백 사유와 다른 기관 삭제자는 원래부터 거부됨을 확인했습니다. 두 유형 동시 저장, 같은 유형의 원선택·확인값 분리, 같은 상담·출처·유형 중복 거부, 활성 회차 중복 거부도 pgTAP으로 확인합니다. 삭제한 회차 번호 재사용 정책(T06)은 정하지 않았습니다.
+- 3 Data API 검사 신뢰성(수정): `scripts/check-data-api-access.mjs`가 2xx가 아니면 차단으로 보던 판정을 바꿨습니다. 테이블 요청은 역할별 기대 상태(PostgREST 규칙상 anon 401, 그 밖 403)와 `42501`이 함께 맞을 때만, RPC는 `404 PGRST202`일 때만 차단 확인입니다. 인증 실패·요청 형식 오류·NOT NULL·외래키 등 제약 오류·서버 오류·네트워크 실패·상태 불일치는 검사 미완료, 2xx는 접근 허용, 합성 사용자 삭제 실패는 정리 실패로 구분하고 하나라도 있으면 실패로 끝납니다(종료 코드 접근 허용 1·정리 실패 3·검사 미완료 2). 판정 함수를 내보내 `scripts/check-data-api-access.test.mjs`(5개 테스트: 차단 통과, 2xx 실패, 오류 10종×3역할 실패, RPC 비노출만 통과, 요약·정리 실패)로 확인합니다. 키·토큰·비밀번호·응답 본문은 어떤 경로에서도 출력하지 않습니다.
+- 4 RLS·권한 검사(재현·수정): 기존 검사는 `information_schema.role_table_grants`의 직접 부여만 봐서, PUBLIC 부여나 상속 역할로 받은 권한이 있어도 0건으로 통과함을 재현했습니다. `has_table_privilege`·`has_any_column_privilege`로 세 역할(anon·authenticated·service_role)의 실효 테이블·열 권한을, 업무 테이블별 RLS 켜짐을, 트리거 함수 실행 권한을 세 역할 모두 검사하도록 pgTAP을 30개에서 55개로 늘렸습니다. T03의 서버 DB 접근 방식은 미정 그대로입니다.
+- 결함 주입 확인: PUBLIC 조회 권한, 상속 역할 권한, 열 단위 권한, 함수 실행 권한, 이전 삭제 제약, 기록자 복합 외래키 제거를 각각 로컬 DB에 잠시 넣으면 해당 pgTAP 검사가 실패하고, 원복 후 통과함을 확인했습니다. 이 과정에서 삭제 검사들이 앞 검사의 예상 밖 성공 상태를 이어받는 문제를 찾아, 각 검사가 세 열을 직접 지정하도록 고쳤습니다. Data API 스크립트도 `anon`에 조회 권한을 잠시 주면 실패(빈 결과 200도 접근 허용)함을 앞 단계에서 확인했습니다.
+- seed: 새 열에 맞춰 `supabase/seed.sql`의 상담 유형에 `organization_id`를 넣었습니다. 메인 로컬 DB를 지우지 않고 같은 Postgres에 일회용 데이터베이스를 만들어 두 마이그레이션과 seed를 차례로 적용해 성공(기관 1·직원 4·환자 5·상담 7·유형 8)함을 확인한 뒤 그 데이터베이스를 지웠습니다.
+- 5 AT-40 CORS 기록 정정(재확인): 공식 문서와 로컬 실행을 다시 확인했습니다.
+  - 공식 문서([Edge Functions CORS](https://supabase.com/docs/guides/functions/cors), 2026-10-02 원문 확인)는 브라우저 호출 시 사전 요청을 처리하고 `withSupabase`를 쓰지 않으면 헤더를 직접 추가하라고만 안내하며, 호스팅 게이트웨이가 CORS 헤더를 붙이는지는 밝히지 않습니다. 따라서 이전 기록의 "공식 문서상 호스팅 게이트웨이는 CORS 헤더를 붙이지 않는다"는 추론이었고 정정했습니다(08·15).
+  - 자체 호스팅: 공식 저장소 [`docker/volumes/api/kong.yml`(커밋 3fc8af3, 2026-09-30)](https://github.com/supabase/supabase/blob/3fc8af387ec4dfb449510828a938e1f6e57a9575/docker/volumes/api/kong.yml)의 `functions-v1`에도 `cors` 플러그인이 있어 로컬과 같은 동작이 예상됩니다(설정 근거, 실행 안 함).
+  - 로컬 재측정(OrbStack, CLI 2.119.0, Edge Runtime 1.77.1): 게이트웨이 경유는 GET 출처 없음·허용 출처 200 + `*`, 비허용 출처 403 + `*`, OPTIONS 허용·비허용 모두 200 + `*` + TRACE·CONNECT 포함 메서드 목록이며 `x-request-id`가 없어 함수까지 가지 않습니다. 함수 직접 호출은 GET 출처 없음 200(CORS 헤더 없음), 허용 출처 200 + 해당 출처, 비허용 출처 403, OPTIONS 허용 출처 204 + 해당 출처 + 함수의 허용 메서드, 비허용 출처 403입니다. 함수 로그에 오류·경고·자격증명 형식은 없었습니다.
+  - 평가: 외부 공용 코드 import·health(A·B)와 로그(D)는 로컬 Edge Runtime에서 통과, 함수의 출처 검사는 직접 호출로 통과, 게이트웨이 CORS 차이는 로컬 Kong 설정에서 오는 환경 차이입니다. DB 단계로 진행한 근거는 차이가 함수 코드나 DB 스키마와 무관하고, 비허용 출처의 실제 요청은 게이트웨이 경유에서도 함수가 거부하기 때문입니다. 남은 검증: 호스팅 게이트웨이 경유 GET·OPTIONS의 CORS 헤더(T18, AT-40 원격). 로컬에서 `*`가 붙으면 브라우저가 403 오류 응답을 읽을 수 있다는 점도 기록했습니다.
+- 6 D27 의존성과 데이터 모델 문서: T05의 선행조건을 `T02~04` 범위 표기에서 `T02·T03·T04·T04A(T04B 아님)`로, T17을 `T03~16`에서 작업 ID 나열로 바꾸고, T04B·T17을 같은 통합 테스트 단계에서 함께 수행한다고 명시했습니다. 현재 화면은 구현 제안·고객 미확정 그대로입니다. docs/09에 연결 테이블 예외(복합 기본키, `id`·`updated_at` 없음, 행 추가·삭제로만 변경, 변경 이력은 T16 감사 기록)와 출생연도·나이 범위가 구현 제안임을 적었고, 전화번호 암호화(T05)·회차 재사용(T06)·문항·성별 허용값(O03)·로그인 정책(O13)은 정하지 않았습니다.
+- 검증: 로컬 Supabase 기동 → 후속 마이그레이션 적용(`migration up`), `npm run db:test`(pgTAP 55개) 통과, `npm run db:check-access`(차단 확인 105·접근 허용 0·검사 미완료 0·정리 실패 0, 출력에 자격증명 형식 0줄) 통과, `npm run test:scripts`(18개: 번들 검사 6·경계 7·Data API 판정 5) 통과, `npm run lint`(저장소 전체, 종료 0) 통과, `git diff --check` 통과. 처음에는 새 스크립트의 lint 결과를 잘못 읽어 통과로 보았으나 저장소 전체 lint에서 쓰지 않는 초기값 1건(`no-useless-assignment`)이 드러나 고쳤고, 고친 뒤 `db:check-access`·`db:test`를 로컬에서 다시 실행해 같은 결과를 확인했습니다. 웹·서버 코어 코드는 바꾸지 않아 typecheck·workspace 테스트·웹 빌드는 이번에 다시 실행하지 않았습니다(마지막 전체 통과는 T02 2단계 기록).
+- 정리: 재측정용 `functions:serve`와 일회용 curl 컨테이너는 종료·삭제했고, 로컬 Supabase는 기본 `npx supabase stop`(데이터 보존)으로 멈췄습니다. 자격증명이 담길 수 있는 임시 출력 파일은 지웠습니다.
+- 남은 제한: 호스팅 게이트웨이 CORS·원격 배포(T18), 플랫폼 로그의 토큰(AT-39), 서버 DB 접근 방식과 그에 필요한 권한(T03), 직원이 환자 원선택을 대신 입력하는 경우의 기록 방식, 상담 유형 변경 이력(T16).
+- 상태: T02 `IN_PROGRESS`(검토 보완 반영, 재검토 대기). T04B `TODO(연기, D27)`.
+
+## T02 재검토 잔여 보완과 완료 정리 · 2026-10-02
+
+- 범위: Codex 재검토의 잔여 2건. `scripts/check-data-api-access.mjs`·`.test.mjs`, `supabase/tests/database/t02_core_schema.test.sql`, 문서 09·15만 바꿨습니다. 스키마·권한 설정은 바꿀 필요가 없어 새 마이그레이션은 만들지 않았습니다. T03 구현, 데이터 초기화, 원격 작업, 커밋은 하지 않았습니다.
+- 1 합성 비밀번호(재현·수정): 기존 `randomBytes(18).toString("base64url")`은 24자 중 숫자가 하나도 없을 수 있습니다(약 1.7%). 입력을 고정해(0 바이트 18개 → 숫자 없는 비밀번호) 로컬 Auth에 합성 사용자 생성을 시도하면 `422 weak_password`로 실패함을 재현했습니다(사용자 생성 안 됨). `syntheticPassword()`로 바꿔, 영문·숫자 62종 난수 24자를 만든 뒤 난수로 고른 서로 다른 두 위치에 숫자 하나와 영문 하나를 넣어 정책(10자 이상, `letters_digits`)을 항상 만족하게 했습니다. 난수 원천을 인자로 받아 테스트에서 고정합니다(새 패키지·추상화 없음). 회귀 테스트는 영문만 나오는 입력, 숫자만 나오는 입력, 0xFF 입력, 위치 계산이 배열 끝에서 처음으로 넘어가는 입력과 기본 난수 200회를 확인하며, 생성 함수를 기존 식으로 되돌리면 실패함을 확인한 뒤 원복했습니다. 비밀번호·키·토큰은 어떤 경로에서도 출력하지 않습니다. Data API 판정과 합성 사용자 정리 동작은 그대로입니다.
+- 2 MAINTAIN 실효 권한(재현·수정): 롤백 트랜잭션에서 `anon`에 `patients`의 MAINTAIN을 준 뒤 같은 트랜잭션에서 기존 pgTAP을 실행하면, 주입 후 권한은 `true`인데 55개가 모두 `ok`였습니다. 세 역할의 `has_table_privilege` 검사 목록에 PostgreSQL 17의 `MAINTAIN`을 더했습니다. PUBLIC·상속·열 단위 권한과 함수 실행 권한 검사는 그대로입니다. 고친 뒤 롤백 트랜잭션에서 MAINTAIN을 anon·authenticated·service_role 각각, PUBLIC, 상속 역할(authenticated)로 주입하면 해당 검사(15·16·17번)가 실패하고, 롤백 후 세 역할의 업무 테이블 MAINTAIN 권한 0건·임시 역할 없음을 확인했습니다.
+- 검증(로컬 Supabase, 마이그레이션 2개 적용 상태 확인): `npm run test:scripts`(19개: 번들 검사 6·경계 7·Data API 판정·비밀번호 6) 통과, `npm run db:test`(pgTAP 55) 통과, `npm run db:check-access`(차단 확인 105·접근 허용 0·검사 미완료 0·정리 실패 0, 출력에 자격증명 형식 0줄) 통과, `npm run lint`(종료 0), `git diff --check` 통과. 검사 후 인증 사용자 0명, 상담 7·상담 유형 8건으로 데이터 보존. 웹·서버 코어 코드는 바꾸지 않아 typecheck·workspace 테스트·웹 빌드는 이번에 다시 실행하지 않았습니다(마지막 전체 통과는 T02 2단계 기록).
+- T02 완료 기준 대조(위 "후속 기술 작업 완료 기준"의 T02 행):
+  - 착수 시 로컬 Edge Runtime 실행·외부 공용 코드 import 확인(AT-40 로컬): 충족. 게이트웨이 CORS 차이는 로컬 Kong 설정에서 오는 환경 차이로 기록했고 호스팅 경유는 T18.
+  - 빈 DB 적용: 첫 마이그레이션과 seed는 `supabase db reset`으로, 후속 마이그레이션을 포함한 전체는 메인 로컬 DB를 보존하라는 지시에 따라 일회용 빈 데이터베이스에서 두 마이그레이션과 seed를 차례로 적용해 확인했습니다.
+  - anon·authenticated(및 service_role)의 Data API 직접 조회·변경 거부: 충족(105건 차단 확인).
+  - RLS·권한 검사: 충족(pgTAP 55, 실효 권한·MAINTAIN 포함, 결함 주입으로 검사 효과 확인).
+  - 문서화와 Supabase 전용 기능 기록: 충족(09·13·14·19).
+- 상태: T02를 로컬 구현·검증 범위에서 `DONE`으로 정리했습니다. 별도 미완료로 남는 것: 원격 배포와 호스팅 게이트웨이 CORS(T18), 서버 DB 접근 방식과 업무 API 권한(T03 이후), 플랫폼 로그의 토큰(AT-39), 직원 대리 입력 시 환자 원선택 기록 방식, 상담 유형 변경 이력(T16). T04B는 `TODO(연기, D27)` 그대로입니다.
+- 정리: 로컬 Supabase는 기본 `npx supabase stop`(데이터 보존)으로 멈춥니다. 다음 작업은 T03(직원 로그인·업무 사용자 연결·서버 DB 접근 방식 결정)입니다.
+
+## T02 완료 문서 정리와 중간 커밋 · 2026-10-03
+
+- 범위: 문서 정리와 로컬 커밋 1개. 코드·DB·설정 변경, Supabase 기동, DB 초기화, 원격 작업, 푸시, T03 구현은 하지 않았습니다.
+- 정리한 내용: README 현재 상태를 "T02 로컬 구현·검증 완료"로 바꾸고 요약 문단에 T02 범위와 남은 일을 적었습니다. T02 완료 기준의 "빈 DB 적용"에 기존 로컬 데이터를 보존하는 일회용 빈 데이터베이스 방식도 허용됨을 명시하고, 실제로 그 방식을 쓴 기록("T02 검토 보완", "T02 재검토 잔여 보완과 완료 정리")과 연결했습니다. T02 작업표(`DONE`, 로컬 구현·검증 범위)·완료 기준·최신 기록·README 상태를 맞췄습니다. 과거 `IN_PROGRESS`·`BLOCKED` 기록은 당시 이력이라 그대로 둡니다.
+- 직전 재검토 결과(이전 검증 증거, 이번 작업에서 다시 실행하지 않음): `npm run test:scripts` 19개 통과, pgTAP 55개 통과, Data API 105건 차단·접근 허용 0·검사 미완료 0·정리 실패 0, lint·`git diff --check` 통과, 합성 인증 사용자 0명·기존 합성 데이터 보존, 기본 `supabase stop` 완료·DB 볼륨 보존. 추가 코드 결함은 없었고 README 상태 불일치만 확인되어 이번에 고쳤습니다.
+- 이번 작업에서 실행한 검사: 문서 간 T02·T03·T04B 상태와 완료 범위 대조, 링크 대상 파일 존재 확인, `git diff --check`, 스테이징 후 `git diff --cached --check`와 비밀값 형식 검색.
+- 완료 범위와 남은 일: T02 `DONE`은 로컬 구현·검증 범위입니다. 미완료로 남는 것은 원격 배포와 호스팅 게이트웨이 CORS(T18), 플랫폼 로그의 토큰(AT-39), 서버 DB 접근 방식과 업무 API 권한(T03 이후), 직원이 환자 원선택을 대신 입력할 때의 기록 방식, 상담 유형 변경 이력(T16)입니다. D25·D26 확정, P17~P22 제안, O13·O14 보류, T04B `TODO(연기, D27)`는 그대로입니다.
+- 다음 작업: **T03 1단계 — 서버 DB 접근 방식 선택·직원 로그인·`StaffAuthenticator`·`/me`·웹 인증 연결.** 관리자 계정관리와 ban·세션 폐기 검증은 T03 후속 단계입니다. T03은 `TODO`이며 DB 접근 방식과 O13은 이 문서 작업에서 정하지 않았습니다.
